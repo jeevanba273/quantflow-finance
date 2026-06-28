@@ -18,6 +18,6 @@ python:
       extra_requirements:
         - docs
 
-formats:
-  - pdf
-  - htmlzip
+# HTML only for now. PDF (LaTeX) can choke on the Unicode math in the
+# docstrings/theory page; it can be re-enabled later with latex_engine="xelatex".
+formats: []
