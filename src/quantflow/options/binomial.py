@@ -50,10 +50,10 @@ class BinomialTree(OptionPricer):
 
     Notes
     -----
-    With ``dt = T / steps``:
-        u = exp(σ√dt),  d = 1/u,  p = (exp((r - q)·dt) - d) / (u - d)
-    Backward induction discounts by ``exp(-r·dt)`` each step; American nodes take
-    ``max(continuation, intrinsic)``.
+    With ``dt = T / steps``, the up/down factors are ``u = exp(sigma*sqrt(dt))``
+    and ``d = 1/u``, and the risk-neutral up-probability is
+    ``p = (exp((r - q) * dt) - d) / (u - d)``. Backward induction discounts by
+    ``exp(-r * dt)`` each step; American nodes take ``max(continuation, intrinsic)``.
     """
 
     def __init__(

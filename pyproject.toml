@@ -58,10 +58,18 @@ dev = [
     "build>=1.0",
     "twine>=4.0",
 ]
+docs = [
+    "sphinx>=7.0",
+    "pydata-sphinx-theme>=0.15",
+    "numpydoc>=1.6",
+    "myst-parser>=2.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-design>=0.5",
+]
 
 [project.urls]
 Homepage = "https://github.com/jeevanba273/quantflow-finance"
-Documentation = "https://github.com/jeevanba273/quantflow-finance#readme"
+Documentation = "https://quantflow-finance.readthedocs.io"
 Source = "https://github.com/jeevanba273/quantflow-finance"
 "Bug Reports" = "https://github.com/jeevanba273/quantflow-finance/issues"
 

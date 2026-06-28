@@ -14,11 +14,13 @@ class RiskMetrics:
     """
     Portfolio risk analysis tools.
 
-    Parameters:
-    returns: pandas Series or numpy array of portfolio returns
-    periods_per_year: int - Number of return periods per year used for
-        annualization (default 252 for daily data; use 12 for monthly,
-        52 for weekly, etc.)
+    Parameters
+    ----------
+    returns : pandas.Series, pandas.DataFrame, or numpy.ndarray
+        Periodic returns of the portfolio or asset.
+    periods_per_year : int, default 252
+        Number of return periods per year used for annualization (252 for daily
+        data, 12 for monthly, 52 for weekly).
     """
 
     def __init__(self, returns, periods_per_year: int = 252):
