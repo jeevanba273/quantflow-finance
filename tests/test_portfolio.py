@@ -54,6 +54,28 @@ def test_min_variance(sample_multi_returns):
     assert all(w >= -1e-9 for w in mv["weights"])
 
 
+def test_min_variance_matches_analytical():
+    """Unconstrained min-variance must equal the closed-form Sigma^-1 1 / (1' Sigma^-1 1).
+
+    Regression guard: with daily-scale returns the variance objective is tiny, and a
+    loose optimizer tolerance previously returned the equal-weight starting guess.
+    """
+    rng = np.random.default_rng(5)
+    data = pd.DataFrame(
+        rng.normal(0.0005, 0.01, (800, 3)) * np.array([1.0, 1.3, 0.8]),
+        columns=["A", "B", "C"],
+    )
+    p = Portfolio(data)
+    cov = data.cov().to_numpy()
+    inv = np.linalg.inv(cov)
+    one = np.ones(3)
+    w_analytical = inv @ one / (one @ inv @ one)
+    w_pkg = p.min_variance(allow_short=True)["weights"]
+    assert np.max(np.abs(w_pkg - w_analytical)) < 1e-4
+    # Must have actually optimized, not returned the equal-weight starting guess.
+    assert np.max(np.abs(w_pkg - np.repeat(1 / 3, 3))) > 1e-3
+
+
 def test_max_sharpe(sample_multi_returns):
     p = Portfolio(sample_multi_returns)
     ms = p.max_sharpe()

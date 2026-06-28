@@ -62,6 +62,9 @@ class Portfolio:
         self.assets = list(self.returns.columns)
         self._mu = self.returns.mean().to_numpy()
         self._cov = self.returns.cov().to_numpy()
+        # Normalizer that keeps the variance objective O(1) regardless of return
+        # frequency, so SLSQP's tolerance is meaningful (daily variances are tiny).
+        self._var_scale = 1.0 / max(float(np.mean(np.diag(self._cov))), 1e-300)
 
         if weights is None:
             self.weights = np.repeat(1.0 / self.n_assets, self.n_assets)
@@ -111,6 +114,10 @@ class Portfolio:
             return -1e9
         return (self._ret(w) - risk_free_rate) / vol
 
+    def _variance_obj(self, w):
+        """Scaled portfolio variance, kept O(1) for robust SLSQP minimization."""
+        return self._var_scale * float(w @ self._cov @ w)
+
     def _bounds(self, allow_short):
         return (
             [(None, None)] * self.n_assets
@@ -126,6 +133,7 @@ class Portfolio:
             method="SLSQP",
             bounds=self._bounds(allow_short),
             constraints=constraints,
+            options={"ftol": 1e-12, "maxiter": 1000},
         )
 
     def _result(self, res, risk_free_rate=0.02):
@@ -184,9 +192,7 @@ class Portfolio:
     def min_variance(self, allow_short=False) -> dict:
         """Minimum-variance portfolio (weights sum to 1)."""
         constraints = [{"type": "eq", "fun": lambda w: w.sum() - 1.0}]
-        res = self._solve(
-            lambda w: self._vol(w, annualized=False) ** 2, constraints, allow_short
-        )
+        res = self._solve(self._variance_obj, constraints, allow_short)
         return self._result(res)
 
     def max_sharpe(self, risk_free_rate=0.02, allow_short=False) -> dict:
@@ -218,9 +224,7 @@ class Portfolio:
                 {"type": "eq", "fun": lambda w: w.sum() - 1.0},
                 {"type": "eq", "fun": lambda w, t=target: self._ret(w) - t},
             ]
-            res = self._solve(
-                lambda w: self._vol(w, annualized=False) ** 2, constraints, allow_short
-            )
+            res = self._solve(self._variance_obj, constraints, allow_short)
             if not res.success:
                 continue
             w = res.x
@@ -263,9 +267,7 @@ class Portfolio:
                 {"type": "eq", "fun": lambda w: w.sum() - 1.0},
                 {"type": "eq", "fun": lambda w: self._ret(w) - target_return},
             ]
-            res = self._solve(
-                lambda w: self._vol(w, annualized=False) ** 2, constraints, allow_short
-            )
+            res = self._solve(self._variance_obj, constraints, allow_short)
             return self._result(res, risk_free_rate)
         raise ValueError(
             "objective must be 'max_sharpe', 'min_variance', or 'target_return'"

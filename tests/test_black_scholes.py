@@ -105,3 +105,39 @@ def test_extreme_param_warnings():
         BlackScholes(100, 100, 6, 0.05, 0.2)
     with pytest.warns(UserWarning):
         BlackScholes(100, 100, 1, 0.05, 2.5)
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        dict(S=float("nan"), K=100, T=1, r=0.05, sigma=0.2),
+        dict(S=100, K=float("inf"), T=1, r=0.05, sigma=0.2),
+        dict(S=100, K=100, T=float("nan"), r=0.05, sigma=0.2),
+        dict(S=100, K=100, T=1, r=float("nan"), sigma=0.2),
+        dict(S=100, K=100, T=1, r=0.05, sigma=float("inf")),
+    ],
+)
+def test_non_finite_params_raise(kwargs):
+    with pytest.raises(ValueError):
+        BlackScholes(**kwargs)
+
+
+def test_non_string_option_type_raises():
+    with pytest.raises(ValueError):
+        BlackScholes(100, 100, 1, 0.05, 0.2, None)
+
+
+def test_iv_rejects_non_positive_price(atm_call):
+    with pytest.raises(ValueError):
+        atm_call.implied_volatility(0.0)
+    with pytest.raises(ValueError):
+        atm_call.implied_volatility(-1.0)
+
+
+def test_iv_rejects_arbitrage_violation():
+    # market price at/above the S*e^{-qT} upper bound is not achievable
+    option = BlackScholes(100, 100, 1, 0.05, 0.2, "call")
+    with pytest.raises(ValueError):
+        option.implied_volatility(100.0)
+    with pytest.raises(ValueError):
+        option.implied_volatility(150.0)

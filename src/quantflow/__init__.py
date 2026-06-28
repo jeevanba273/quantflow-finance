@@ -4,7 +4,7 @@ QuantFlow: Essential quantitative finance tools for modern portfolio management.
 A comprehensive Python package for options pricing, risk analytics, and market data processing.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "JEEVAN B A"
 __email__ = "jeevanba273@gmail.com"
 

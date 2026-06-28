@@ -19,6 +19,11 @@ import numpy as np
 
 def _validate_params(S, K, T, r, sigma, q, option_type):
     """Validate the core option parameters shared by every pricer."""
+    if not isinstance(option_type, str):
+        raise ValueError("option_type must be 'call' or 'put'")
+    for name, value in (("S", S), ("K", K), ("T", T), ("sigma", sigma), ("r", r)):
+        if not np.isfinite(value):
+            raise ValueError(f"{name} must be a finite number")
     if S <= 0:
         raise ValueError("Stock price (S) must be positive")
     if K <= 0:

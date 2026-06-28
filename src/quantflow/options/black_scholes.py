@@ -8,6 +8,7 @@ for European option pricing, including all Greeks calculations (Delta, Gamma, Th
 
 import numpy as np
 from scipy.stats import norm
+from scipy.optimize import brentq
 from typing import Dict, Literal
 import warnings
 
@@ -76,6 +77,11 @@ class BlackScholes:
         q: float = 0.0,
     ):
         # Input validation
+        if not isinstance(option_type, str):
+            raise ValueError("option_type must be 'call' or 'put'")
+        for name, value in (("S", S), ("K", K), ("T", T), ("sigma", sigma), ("r", r)):
+            if not np.isfinite(value):
+                raise ValueError(f"{name} must be a finite number")
         if S <= 0:
             raise ValueError("Stock price (S) must be positive")
         if K <= 0:
@@ -203,10 +209,11 @@ class BlackScholes:
 
     def theta(self) -> float:
         """
-        Calculate option theta (∂V/∂T).
+        Calculate option theta (-∂V/∂T, the time decay per year).
 
-        Theta measures the rate of change of option price with respect to time.
-        Usually expressed as the dollar amount an option loses per day.
+        Theta measures the rate of change of option price as time to expiry
+        decreases. It is typically negative for long options (the option loses
+        value as expiry approaches).
 
         Returns
         -------
@@ -309,55 +316,94 @@ class BlackScholes:
         self, market_price: float, tolerance: float = 1e-6, max_iterations: int = 100
     ) -> float:
         """
-        Calculate implied volatility using Newton-Raphson method.
+        Calculate the implied volatility that reproduces ``market_price``.
+
+        Uses a robust bracketing root-finder (Brent's method) on the strictly
+        increasing price-versus-volatility curve, after validating the price
+        against the option's no-arbitrage bounds. This avoids the failure modes
+        of an unbracketed Newton-Raphson iteration in low-vega regimes.
 
         Parameters
         ----------
         market_price : float
-            Observed market price of the option
+            Observed market price of the option. Must be positive and lie within
+            the no-arbitrage bounds for this option.
         tolerance : float, default 1e-6
-            Convergence tolerance
+            Convergence tolerance on the volatility estimate.
         max_iterations : int, default 100
-            Maximum number of iterations
+            Maximum number of solver iterations.
 
         Returns
         -------
         float
-            Implied volatility
+            Implied volatility.
 
         Raises
         ------
         ValueError
-            If convergence is not achieved
+            If ``market_price`` is not a positive finite number, violates the
+            no-arbitrage bounds, or the solver cannot bracket/converge.
         """
-        # Initial guess
-        sigma_guess = 0.3
+        if not np.isfinite(market_price) or market_price <= 0:
+            raise ValueError("market_price must be a positive, finite number")
 
-        for i in range(max_iterations):
-            # Create temporary option with current volatility guess
-            temp_option = BlackScholes(
-                self.S, self.K, self.T, self.r, sigma_guess, self.option_type, q=self.q
+        disc_q = np.exp(-self.q * self.T)
+        disc_r = np.exp(-self.r * self.T)
+        if self.option_type == "call":
+            lower = max(self.S * disc_q - self.K * disc_r, 0.0)
+            upper = self.S * disc_q
+        else:
+            lower = max(self.K * disc_r - self.S * disc_q, 0.0)
+            upper = self.K * disc_r
+
+        if market_price < lower - tolerance or market_price > upper - tolerance:
+            raise ValueError(
+                f"market_price {market_price:.6f} violates the no-arbitrage bounds "
+                f"[{lower:.6f}, {upper:.6f}] for this option"
             )
 
-            # Calculate price and vega with current guess
-            price_diff = temp_option.price() - market_price
-            vega_val = temp_option.vega() * 100  # Convert back from percentage
+        def price_gap(sigma):
+            # Suppress solver-internal "extreme volatility" warnings (the
+            # bracketing probes large sigma values that are not user inputs).
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                return (
+                    BlackScholes(
+                        self.S,
+                        self.K,
+                        self.T,
+                        self.r,
+                        sigma,
+                        self.option_type,
+                        q=self.q,
+                    ).price()
+                    - market_price
+                )
 
-            # Check convergence
-            if abs(price_diff) < tolerance:
-                return sigma_guess
+        sigma_low, sigma_high = 1e-6, 10.0
+        # Expand the upper bracket for unusually high-volatility prices.
+        tries = 0
+        while price_gap(sigma_high) < 0 and sigma_high < 1e3 and tries < 20:
+            sigma_high *= 2.0
+            tries += 1
 
-            # Newton-Raphson update
-            if vega_val == 0:
-                raise ValueError("Vega is zero, cannot calculate implied volatility")
+        if price_gap(sigma_low) > 0 or price_gap(sigma_high) < 0:
+            raise ValueError(
+                "Failed to bracket implied volatility for the given market price"
+            )
 
-            sigma_guess = sigma_guess - price_diff / vega_val
-
-            # Ensure positive volatility
-            if sigma_guess <= 0:
-                sigma_guess = 0.01
-
-        raise ValueError(f"Failed to converge after {max_iterations} iterations")
+        try:
+            return float(
+                brentq(
+                    price_gap,
+                    sigma_low,
+                    sigma_high,
+                    xtol=tolerance,
+                    maxiter=max_iterations,
+                )
+            )
+        except (ValueError, RuntimeError) as exc:
+            raise ValueError(f"Implied volatility solver failed: {exc}")
 
     def __repr__(self) -> str:
         """String representation of the Black-Scholes option."""

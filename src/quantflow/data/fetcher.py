@@ -193,7 +193,9 @@ class MarketData:
             raise ValueError("Cannot calculate returns from empty price data")
 
         if method == "simple":
-            returns = prices.pct_change().dropna()
+            # fill_method=None avoids forward-filling interior gaps (which would
+            # emit spurious 0% returns) and the pandas pct_change FutureWarning.
+            returns = prices.pct_change(fill_method=None).dropna()
         elif method == "log":
             returns = np.log(prices / prices.shift(1)).dropna()
         else:

@@ -1,5 +1,6 @@
 """Tests for the MarketData fetcher (offline via mocked yfinance)."""
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -34,6 +35,16 @@ def test_bad_return_method(sample_prices):
 def test_empty_returns_raises():
     with pytest.raises(ValueError):
         MarketData.calculate_returns(pd.DataFrame())
+
+
+def test_calculate_returns_interior_nan_consistent():
+    # An interior NaN must not produce a spurious 0% simple return; simple and
+    # log returns should agree on the surviving observation.
+    prices = pd.Series([100.0, np.nan, 110.0, 121.0])
+    simple = MarketData.calculate_returns(prices, "simple")
+    log = MarketData.calculate_returns(prices, "log")
+    assert len(simple) == len(log) == 1
+    assert np.allclose(simple.values, np.expm1(log.values))
 
 
 def test_fetch_empty_raises(mock_yfinance_empty):

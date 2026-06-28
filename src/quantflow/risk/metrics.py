@@ -79,6 +79,9 @@ class RiskMetrics:
         if len(self.returns) == 0:
             raise ValueError("No return data available for parametric VaR calculation")
 
+        if not (0 < confidence_level < 1):
+            raise ValueError("Confidence level must be between 0 and 1")
+
         mean_return = self.returns.mean()
         std_return = self.returns.std()
         z_score = stats.norm.ppf(confidence_level)
@@ -275,8 +278,11 @@ class RiskMetrics:
         """
         port, bench = self._align(benchmark_returns)
         var_bench = np.var(bench, ddof=1)
-        if var_bench == 0:
-            raise ValueError("Benchmark has zero variance; beta is undefined")
+        # Use a scale-aware tolerance: a constant benchmark can leave a tiny
+        # floating-point residual variance that an exact == 0 test would miss.
+        scale = max(bench.mean() ** 2, 1.0)
+        if np.ptp(bench) == 0 or var_bench <= 1e-15 * scale:
+            raise ValueError("Benchmark has (near-)zero variance; beta is undefined")
         return np.cov(port, bench, ddof=1)[0, 1] / var_bench
 
     def alpha(self, benchmark_returns, risk_free_rate: float = 0.02):

@@ -58,3 +58,10 @@ def test_invalid_steps_raises():
 def test_invalid_exercise_raises():
     with pytest.raises(ValueError):
         BinomialTree(100, 100, 1, 0.05, 0.2, exercise="bermudan")
+
+
+def test_non_finite_params_raise():
+    with pytest.raises(ValueError):
+        BinomialTree(float("nan"), 100, 1, 0.05, 0.2)
+    with pytest.raises(ValueError):
+        BinomialTree(100, 100, 1, float("inf"), 0.2)

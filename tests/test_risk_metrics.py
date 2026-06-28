@@ -94,3 +94,16 @@ def test_summary_stats_keys(sample_returns):
     assert {"periods_per_year", "sortino_ratio", "var_95", "max_drawdown"}.issubset(
         stats
     )
+
+
+def test_beta_near_constant_benchmark_raises(sample_returns):
+    # A constant benchmark leaves a tiny fp residual variance; must still raise.
+    const = pd.Series(np.full(len(sample_returns), 0.001))
+    with pytest.raises(ValueError):
+        RiskMetrics(sample_returns).beta(const)
+
+
+@pytest.mark.parametrize("cl", [0, 1, 1.5, -0.1])
+def test_var_parametric_validates_confidence(sample_returns, cl):
+    with pytest.raises(ValueError):
+        RiskMetrics(sample_returns).var_parametric(cl)
