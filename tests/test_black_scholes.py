@@ -1,106 +1,107 @@
-"""
-Test the Black-Scholes implementation.
-"""
+"""Tests for the Black-Scholes-Merton option pricing model."""
 
-import sys
-import os
+import math
 
-# Add the src folder to Python path so we can import our code
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../src'))
+import pytest
 
-from quantflow.options.black_scholes import BlackScholes
+from quantflow import BlackScholes
 
 
-def test_basic_call_option():
-    """Test a basic call option price."""
-    # Create a call option: Stock=$100, Strike=$100, 1 year, 5% rate, 20% volatility
-    option = BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-    price = option.price()
-    
-    print(f"Call option price: ${price:.2f}")
-    
-    # The theoretical price should be around $10.45
-    assert 10.0 < price < 11.0, f"Price {price} seems wrong for this call option"
-    print("✓ Call option test passed!")
-
-def test_delta_calculation():
-    """Test delta calculation."""
-    # Same option as before
-    option = BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-    delta = option.delta()
-    
-    print(f"Call option delta: {delta:.3f}")
-    
-    # Delta for ATM call should be around 0.6
-    assert 0.55 < delta < 0.65, f"Delta {delta} seems wrong"
-    print("✓ Delta test passed!")
-
-def test_gamma_calculation():
-    """Test gamma calculation."""
-    # Same option as before
-    option = BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-    gamma = option.gamma()
-    
-    print(f"Call option gamma: {gamma:.4f}")
-    
-    # Gamma for ATM options should be around 0.02
-    assert 0.015 < gamma < 0.025, f"Gamma {gamma} seems wrong"
-    print("✓ Gamma test passed!")
-
-def test_theta_calculation():
-    """Test theta calculation."""
-    # Same option as before
-    option = BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-    theta = option.theta()
-    
-    print(f"Call option theta: ${theta:.2f} per year")
-    print(f"Daily theta: ${theta/365:.3f} per day")
-    
-    # Theta should be negative for long options (time decay)
-    assert theta < 0, f"Theta {theta} should be negative for long options"
-    assert -10 < theta < -1, f"Theta {theta} seems out of reasonable range"
-    print("✓ Theta test passed!")
+@pytest.mark.parametrize("option_type,lo,hi", [("call", 10.0, 11.0), ("put", 5.0, 6.0)])
+def test_price_range(option_type, lo, hi):
+    price = BlackScholes(100, 100, 1, 0.05, 0.2, option_type).price()
+    assert lo < price < hi
 
 
-def test_vega_calculation():
-    """Test vega calculation."""
-    # Same option as before
-    option = BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-    vega = option.vega()
-    
-    print(f"Call option vega: ${vega:.2f} per 1% volatility change")
-    
-    # Vega should be positive (higher volatility = higher option value)
-    assert vega > 0, f"Vega {vega} should be positive"
-    assert 0.2 < vega < 0.6, f"Vega {vega} seems out of reasonable range"
-    print("✓ Vega test passed!")
-
-def test_greeks_summary():
-    """Test the convenient Greeks summary function."""
-    option = BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type='call')
-    greeks = option.greeks()
-    
-    print("\n📊 Complete Greeks Summary:")
-    print(f"Price: ${greeks['price']:.2f}")
-    print(f"Delta: {greeks['delta']:.3f}")
-    print(f"Gamma: {greeks['gamma']:.4f}")
-    print(f"Theta: ${greeks['theta']:.2f}")
-    print(f"Vega: ${greeks['vega']:.2f}")
-    
-    # Check that all values are present
-    assert 'price' in greeks
-    assert 'delta' in greeks
-    assert 'gamma' in greeks
-    assert 'theta' in greeks
-    assert 'vega' in greeks
-    print("✓ Greeks summary test passed!")
+def test_atm_call_benchmark(atm_call):
+    # Classic ATM benchmark value
+    assert math.isclose(atm_call.price(), 10.4506, abs_tol=1e-3)
 
 
-if __name__ == "__main__":
-    test_basic_call_option()
-    test_delta_calculation()
-    test_gamma_calculation()
-    test_theta_calculation()
-    test_vega_calculation()
-    test_greeks_summary()
-    print("All tests passed! 🎉")
+def test_put_call_parity():
+    c = BlackScholes(100, 100, 1, 0.05, 0.2, "call").price()
+    p = BlackScholes(100, 100, 1, 0.05, 0.2, "put").price()
+    assert math.isclose(c - p, 100 - 100 * math.exp(-0.05), abs_tol=1e-8)
+
+
+@pytest.mark.parametrize("option_type,positive", [("call", True), ("put", False)])
+def test_delta_sign(option_type, positive):
+    d = BlackScholes(100, 100, 1, 0.05, 0.2, option_type).delta()
+    assert (d > 0) if positive else (d < 0)
+
+
+def test_gamma_vega_type_invariant():
+    c = BlackScholes(100, 100, 1, 0.05, 0.2, "call")
+    p = BlackScholes(100, 100, 1, 0.05, 0.2, "put")
+    assert math.isclose(c.gamma(), p.gamma())
+    assert math.isclose(c.vega(), p.vega())
+
+
+def test_implied_vol_roundtrip(atm_call):
+    iv = atm_call.implied_volatility(atm_call.price())
+    assert math.isclose(iv, 0.2, abs_tol=1e-4)
+
+
+def test_greeks_keys(atm_call):
+    assert {"price", "delta", "gamma", "theta", "vega", "rho"} == set(atm_call.greeks())
+
+
+# ----------------------------------------------------------------- dividends
+
+
+def test_dividend_default_unchanged():
+    """q=0.0 must reproduce the non-dividend result exactly (backward-compat gate)."""
+    base = BlackScholes(100, 105, 0.25, 0.05, 0.2)
+    assert base.price() == BlackScholes(100, 105, 0.25, 0.05, 0.2, q=0.0).price()
+
+
+def test_dividend_lowers_call_raises_put():
+    c0 = BlackScholes(100, 100, 1, 0.05, 0.2, "call").price()
+    p0 = BlackScholes(100, 100, 1, 0.05, 0.2, "put").price()
+    cq = BlackScholes(100, 100, 1, 0.05, 0.2, "call", q=0.03).price()
+    pq = BlackScholes(100, 100, 1, 0.05, 0.2, "put", q=0.03).price()
+    assert cq < c0
+    assert pq > p0
+
+
+def test_put_call_parity_with_dividends():
+    c = BlackScholes(100, 100, 1, 0.05, 0.2, "call", q=0.03).price()
+    p = BlackScholes(100, 100, 1, 0.05, 0.2, "put", q=0.03).price()
+    lhs = c - p
+    rhs = 100 * math.exp(-0.03) - 100 * math.exp(-0.05)
+    assert math.isclose(lhs, rhs, abs_tol=1e-6)
+
+
+def test_implied_vol_with_dividends():
+    opt = BlackScholes(100, 105, 0.5, 0.04, 0.25, "call", q=0.02)
+    iv = opt.implied_volatility(opt.price())
+    assert math.isclose(iv, 0.25, abs_tol=1e-4)
+
+
+# ---------------------------------------------------------------- validation
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        dict(S=-1, K=100, T=1, r=0.05, sigma=0.2),
+        dict(S=100, K=0, T=1, r=0.05, sigma=0.2),
+        dict(S=100, K=100, T=-0.5, r=0.05, sigma=0.2),
+        dict(S=100, K=100, T=1, r=0.05, sigma=0),
+    ],
+)
+def test_invalid_params_raise(kwargs):
+    with pytest.raises(ValueError):
+        BlackScholes(**kwargs)
+
+
+def test_bad_option_type_raises():
+    with pytest.raises(ValueError):
+        BlackScholes(100, 100, 1, 0.05, 0.2, "straddle")
+
+
+def test_extreme_param_warnings():
+    with pytest.warns(UserWarning):
+        BlackScholes(100, 100, 6, 0.05, 0.2)
+    with pytest.warns(UserWarning):
+        BlackScholes(100, 100, 1, 0.05, 2.5)

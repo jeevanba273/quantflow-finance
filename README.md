@@ -3,7 +3,7 @@
 <!-- HEADER STYLE: CLASSIC -->
 <div align="center">
 
-# 📈 QUANTFLOW FINANCE 
+# QUANTFLOW FINANCE
 
 <em>Empower your financial decisions with precision analytics.</em>
 
@@ -32,31 +32,31 @@ pip install quantflow-finance
 ```
 ---
 
-## 📄 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Quick Start](#-quick-start)
-- [Live Demo Results](#-live-demo-results)
-- [Getting Started](#-getting-started)
-    - [Prerequisites](#-prerequisites)
-    - [Installation](#%EF%B8%8F-installation)
-    - [Usage](#-usage)
-    - [Testing](#-testing)
-- [Features](#-features)
-- [Mathematical Validation](#-mathematical-validation)
-- [Technical Specifications](#-technical-specifications)
-- [Project Structure](#-project-structure)
-    - [Project Index](#-project-index)
-- [Examples](#-examples)
-- [Educational Applications](#-educational-applications)
-- [Roadmap](#-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Acknowledgments](#-acknowledgments)
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Live Demo Results](#live-demo-results)
+- [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Usage](#usage)
+    - [Testing](#testing)
+- [Features](#features)
+- [Mathematical Validation](#mathematical-validation)
+- [Technical Specifications](#technical-specifications)
+- [Project Structure](#project-structure)
+    - [Project Index](#project-index)
+- [Examples](#examples)
+- [Educational Applications](#educational-applications)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
-## ✨ Overview
+## Overview
 
 QuantFlow Finance is a production-ready Python package designed to empower financial analysts, quantitative researchers, and developers with professional-grade tools for modern quantitative finance and portfolio management.
 
@@ -64,13 +64,13 @@ QuantFlow Finance is a production-ready Python package designed to empower finan
 
 This project bridges the gap between academic financial theory and practical implementation, providing a robust, industry-standard framework for quantitative analysis. The core capabilities include:
 
-- 🎯 **Complete Black-Scholes Implementation:** All 5 Greeks (Delta, Gamma, Theta, Vega, Rho) with mathematical precision
-- 📊 **Advanced Risk Analytics:** Value at Risk (VaR), Expected Shortfall, Sharpe Ratio, Maximum Drawdown
-- 📈 **Real-Time Market Data:** Seamless integration with Yahoo Finance for live market data
-- 💹 **Portfolio Analysis:** Comprehensive risk assessment and performance metrics
-- 🎲 **Monte Carlo Simulation:** Advanced portfolio modeling with 1,000+ simulations
-- 🔬 **Professional Testing:** Extensive validation ensuring 100% mathematical accuracy
-- 🚀 **Easy Integration:** Simple pip installation with minimal dependencies
+- **Complete Black-Scholes Implementation:** All 5 Greeks (Delta, Gamma, Theta, Vega, Rho) with mathematical precision
+- **Advanced Risk Analytics:** Value at Risk (VaR), Expected Shortfall, Sharpe Ratio, Maximum Drawdown
+- **Real-Time Market Data:** Seamless integration with Yahoo Finance for live market data
+- **Portfolio Analysis:** Comprehensive risk assessment and performance metrics
+- **Monte Carlo Simulation:** Advanced portfolio modeling with 1,000+ simulations
+- **Professional Testing:** Extensive validation ensuring 100% mathematical accuracy
+- **Easy Integration:** Simple pip installation with minimal dependencies
 
 **Perfect for:**
 - **Graduate Students**: MFE, MSF, PhD in Finance programs
@@ -81,34 +81,43 @@ This project bridges the gap between academic financial theory and practical imp
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ```python
-from quantflow import BlackScholes, RiskMetrics, MarketData
+from quantflow import BlackScholes, BinomialTree, RiskMetrics, Portfolio, MarketData
 
-# 1. Price an Apple call option with all Greeks
-option = BlackScholes(S=203.92, K=210, T=0.25, r=0.05, sigma=0.333)
+# 1. Price an Apple call option with all Greeks (now with optional dividend yield q)
+option = BlackScholes(S=203.92, K=210, T=0.25, r=0.05, sigma=0.333, q=0.005)
 greeks = option.greeks()
 print(f"Option Price: ${greeks['price']:.2f}")
 print(f"Delta: {greeks['delta']:.3f} | Gamma: {greeks['gamma']:.4f}")
 print(f"Theta: ${greeks['theta']:.2f} | Vega: ${greeks['vega']:.2f} | Rho: ${greeks['rho']:.2f}")
 
-# 2. Analyze real portfolio risk with live data
+# 2. Price an American put with a binomial tree (early exercise)
+american = BinomialTree(S=100, K=105, T=1, r=0.05, sigma=0.25,
+                        option_type='put', exercise='american', steps=1000)
+print(f"American Put: ${american.price():.2f} "
+      f"(early-exercise premium ${american.early_exercise_premium():.2f})")
+
+# 3. Analyze real portfolio risk with live data
 portfolio_data = MarketData.fetch_stock_data(['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA'], period='1y')
 returns = MarketData.calculate_returns(portfolio_data)
-weights = [0.25, 0.20, 0.20, 0.20, 0.15]
-portfolio_returns = (returns * weights).sum(axis=1)
 
-risk = RiskMetrics(portfolio_returns)
-print(f"Portfolio Sharpe Ratio: {risk.sharpe_ratio():.3f}")
-print(f"95% VaR: {risk.var_historical(0.05):.2%}")
-print(f"Expected Shortfall: {risk.expected_shortfall(0.05):.2%}")
-print(f"Max Drawdown: {risk.max_drawdown():.2%}")
+risk = RiskMetrics((returns * [0.25, 0.20, 0.20, 0.20, 0.15]).sum(axis=1))
+print(f"Sharpe: {risk.sharpe_ratio():.3f} | Sortino: {risk.sortino_ratio():.3f} "
+      f"| Calmar: {risk.calmar_ratio():.3f}")
+print(f"95% VaR: {risk.var_historical(0.05):.2%} | Max Drawdown: {risk.max_drawdown():.2%}")
+
+# 4. Optimize the portfolio (maximum Sharpe on the efficient frontier)
+opt = Portfolio(returns).max_sharpe()
+print(f"Optimal weights: {opt['weights_by_asset']}")
+print(f"Expected return: {opt['return']:.2%} | Volatility: {opt['volatility']:.2%} "
+      f"| Sharpe: {opt['sharpe']:.2f}")
 ```
 
 ---
 
-## 🚀 Live Demo Results
+## Live Demo Results
 
 **Real results from comprehensive testing with live market data:**
 
@@ -119,7 +128,7 @@ print(f"Max Drawdown: {risk.max_drawdown():.2%}")
 | $150 | 3M | Put | $6.53 | -0.435 | 0.0210 | -$11.17 | $0.295 | -$0.180 |
 | $155 | 1Y | Call | $16.11 | 0.577 | 0.0104 | -$10.86 | $0.587 | $0.704 |
 
-**✅ Put-Call Parity:** 100% mathematical accuracy (error < 0.000001)
+**Put-Call Parity:** 100% mathematical accuracy (error < 0.000001)
 
 ### Live Portfolio Performance (5-Stock Tech Portfolio)
 | Ticker | Latest Price | Annual Return | Annual Vol | Sharpe Ratio |
@@ -130,7 +139,7 @@ print(f"Max Drawdown: {risk.max_drawdown():.2%}")
 | **TSLA** | $295.14 | **78.6%** | 74.3% | **1.02** |
 | **NVDA** | $141.72 | **33.4%** | 58.7% | **0.52** |
 
-**📊 Portfolio Results:**
+**Portfolio Results:**
 - **Annual Return:** 24.75%
 - **Sharpe Ratio:** 0.645
 - **95% VaR:** -3.38%
@@ -145,33 +154,33 @@ print(f"Max Drawdown: {risk.max_drawdown():.2%}")
 
 ---
 
-## 📌 Features
+## Features
 
 |      | Component       | Details                              |
 | :--- | :-------------- | :----------------------------------- |
-| 🎯  | **Options Pricing**  | <ul><li>Complete Black-Scholes implementation</li><li>All 5 Greeks: Delta, Gamma, Theta, Vega, Rho</li><li>Put-Call parity verification</li><li>Implied volatility solver</li></ul> |
-| 📊 | **Risk Analytics**  | <ul><li>Historical and parametric VaR</li><li>Expected Shortfall (Conditional VaR)</li><li>Sharpe, Sortino, and performance ratios</li><li>Maximum drawdown and recovery analysis</li></ul> |
-| 📈 | **Market Data** | <ul><li>Real-time data from Yahoo Finance</li><li>Multi-ticker portfolio support</li><li>Flexible time periods and intervals</li><li>Robust data preprocessing</li></ul> |
-| 🎲 | **Advanced Analytics** | <ul><li>Monte Carlo portfolio simulation</li><li>Options strategy analysis (Bull spreads, Iron Condor)</li><li>Correlation and diversification metrics</li><li>Rolling risk analytics</li></ul> |
-| 🔩 | **Code Quality**  | <ul><li>100% mathematical accuracy validation</li><li>Comprehensive type hints</li><li>Professional documentation</li><li>Extensive error handling</li></ul> |
-| 🧪 | **Testing**       | <ul><li>Unit tests for all functionalities</li><li>Integration tests with live market data</li><li>Mathematical validation against literature</li><li>Comprehensive test suite</li></ul> |
-| ⚡️  | **Performance**   | <ul><li>Optimized NumPy/SciPy implementations</li><li>Vectorized calculations</li><li>10,000+ calculations per second</li><li>Memory-efficient operations</li></ul> |
-| 📦 | **Distribution**  | <ul><li>Professional PyPI package</li><li>MIT License for academic use</li><li>Easy pip installation</li><li>Minimal dependencies</li></ul> |
+|  | **Options Pricing**  | <ul><li>Complete Black-Scholes implementation</li><li>All 5 Greeks: Delta, Gamma, Theta, Vega, Rho</li><li>Put-Call parity verification</li><li>Implied volatility solver</li></ul> |
+| | **Risk Analytics**  | <ul><li>Historical and parametric VaR</li><li>Expected Shortfall (Conditional VaR)</li><li>Sharpe, Sortino, and performance ratios</li><li>Maximum drawdown and recovery analysis</li></ul> |
+| | **Market Data** | <ul><li>Real-time data from Yahoo Finance</li><li>Multi-ticker portfolio support</li><li>Flexible time periods and intervals</li><li>Robust data preprocessing</li></ul> |
+| | **Advanced Analytics** | <ul><li>Monte Carlo portfolio simulation</li><li>Options strategy analysis (Bull spreads, Iron Condor)</li><li>Correlation and diversification metrics</li><li>Rolling risk analytics</li></ul> |
+| | **Code Quality**  | <ul><li>100% mathematical accuracy validation</li><li>Comprehensive type hints</li><li>Professional documentation</li><li>Extensive error handling</li></ul> |
+| | **Testing**       | <ul><li>Unit tests for all functionalities</li><li>Integration tests with live market data</li><li>Mathematical validation against literature</li><li>Comprehensive test suite</li></ul> |
+|  | **Performance**   | <ul><li>Optimized NumPy/SciPy implementations</li><li>Vectorized calculations</li><li>10,000+ calculations per second</li><li>Memory-efficient operations</li></ul> |
+| | **Distribution**  | <ul><li>Professional PyPI package</li><li>MIT License for academic use</li><li>Easy pip installation</li><li>Minimal dependencies</li></ul> |
 
 ---
 
-## 🏆 Mathematical Validation
+## Mathematical Validation
 
 QuantFlow Finance implements industry-standard models with rigorous validation:
 
 | Test | Real Result | Status |
 |------|-------------|--------|
-| **Black-Scholes Pricing** | 40+ options priced accurately | ✅ Perfect mathematical precision |
-| **Put-Call Parity** | Error < 0.000001 across all tests | ✅ 100% mathematically verified |
-| **Greeks Calculations** | All 5 Greeks: Δ, Γ, Θ, ν, ρ | ✅ Analytical formulas validated |
-| **Live Market Data** | AAPL: $203.92, TSLA: 78.6% return | ✅ Real Yahoo Finance integration |
-| **Portfolio Analysis** | 5-stock portfolio: 24.75% return | ✅ Complete risk assessment |
-| **Monte Carlo** | 1,000 simulations: 27.86% expected return | ✅ Advanced modeling validated |
+| **Black-Scholes Pricing** | 40+ options priced accurately | Perfect mathematical precision |
+| **Put-Call Parity** | Error < 0.000001 across all tests | 100% mathematically verified |
+| **Greeks Calculations** | All 5 Greeks: Δ, Γ, Θ, ν, ρ | Analytical formulas validated |
+| **Live Market Data** | AAPL: $203.92, TSLA: 78.6% return | Real Yahoo Finance integration |
+| **Portfolio Analysis** | 5-stock portfolio: 24.75% return | Complete risk assessment |
+| **Monte Carlo** | 1,000 simulations: 27.86% expected return | Advanced modeling validated |
 
 **Mathematical Accuracy:**
 - **Black-Scholes Model**: Exact analytical implementation matching academic standards
@@ -188,7 +197,7 @@ QuantFlow Finance implements industry-standard models with rigorous validation:
 
 ---
 
-## 🔧 Technical Specifications
+## Technical Specifications
 
 - **Computational Complexity**: O(1) for Black-Scholes, O(n) for risk metrics
 - **Numerical Precision**: 64-bit floating-point arithmetic with error < 0.0001%
@@ -202,14 +211,14 @@ QuantFlow Finance implements industry-standard models with rigorous validation:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### 📋 Prerequisites
+### Prerequisites
 
 - **Python:** 3.8 or higher
 - **Package Manager:** pip (included with Python)
 
-### ⚙️ Installation
+### Installation
 
 **Option 1: Install from PyPI (recommended):**
 
@@ -225,7 +234,7 @@ cd quantflow-finance
 pip install -e .
 ```
 
-### 💻 Usage
+### Usage
 
 **Complete Options Analysis:**
 
@@ -297,14 +306,14 @@ print(f"Max Profit: ${max_profit:.2f}")
 print(f"Breakeven: ${breakeven:.2f}")
 ```
 
-### 🧪 Testing
+### Testing
 
 QuantFlow Finance includes comprehensive validation:
 
 ```sh
 # Test individual modules
 python tests/test_black_scholes.py
-python tests/test_risk_metrics.py  
+python tests/test_risk_metrics.py
 python tests/test_market_data.py
 
 # Run comprehensive test suite
@@ -313,18 +322,18 @@ python comprehensive_test.py
 
 **Expected output:**
 ```
-🎉 COMPREHENSIVE TEST COMPLETED SUCCESSFULLY!
-✅ 40+ options priced with mathematical precision
-✅ Put-call parity verified (error < 0.000001)
-✅ Live market data integration working
-✅ Portfolio risk analytics validated
-✅ Monte Carlo simulation completed
-✨ QuantFlow Finance is production-ready!
+COMPREHENSIVE TEST COMPLETED SUCCESSFULLY!
+40+ options priced with mathematical precision
+Put-call parity verified (error < 0.000001)
+Live market data integration working
+Portfolio risk analytics validated
+Monte Carlo simulation completed
+QuantFlow Finance is production-ready!
 ```
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```sh
 └── quantflow-finance/
@@ -354,7 +363,7 @@ python comprehensive_test.py
 
 ---
 
-### 📑 Project Index
+### Project Index
 
 <details open>
 	<summary><b><code>QUANTFLOW-FINANCE/</code></b></summary>
@@ -514,7 +523,7 @@ python comprehensive_test.py
 
 ---
 
-## 🎯 Examples
+## Examples
 
 ### **Complete Options Analysis**
 
@@ -570,7 +579,7 @@ portfolio_returns = (returns * weights).sum(axis=1)
 risk = RiskMetrics(portfolio_returns)
 
 # Comprehensive risk dashboard
-print("\n📊 Portfolio Risk Dashboard")
+print("\nPortfolio Risk Dashboard")
 print(f"Annual Return: {portfolio_returns.mean() * 252:.2%}")
 print(f"Annual Volatility: {portfolio_returns.std() * np.sqrt(252):.2%}")
 print(f"Sharpe Ratio: {risk.sharpe_ratio():.3f}")
@@ -598,7 +607,7 @@ max_profit = upper_strike - lower_strike - net_premium
 breakeven = lower_strike + net_premium
 net_delta = long_call.delta() - short_call.delta()
 
-print("🐂 Bull Call Spread Analysis")
+print("Bull Call Spread Analysis")
 print(f"Net Premium: ${net_premium:.2f}")
 print(f"Max Profit: ${max_profit:.2f}")
 print(f"Breakeven: ${breakeven:.2f}")
@@ -614,7 +623,7 @@ python comprehensive_test.py
 
 ---
 
-## 🎓 Educational Applications
+## Educational Applications
 
 **Academic Integration:**
 - **Graduate Coursework**: Perfect for MFE, MSF derivatives pricing, risk management, and portfolio theory courses
@@ -643,7 +652,7 @@ python comprehensive_test.py
 
 ---
 
-## 📈 Roadmap
+## Roadmap
 
 - [X] **Complete Black-Scholes Implementation**: All 5 Greeks (Δ, Γ, Θ, ν, ρ) with mathematical precision
 - [X] **Advanced Risk Analytics**: VaR, Expected Shortfall, Sharpe Ratio, Maximum Drawdown validated
@@ -652,20 +661,23 @@ python comprehensive_test.py
 - [X] **Professional Distribution**: PyPI publication with detailed documentation
 - [X] **Monte Carlo Simulation**: Portfolio modeling with 1,000+ scenario analysis
 - [X] **Options Strategies**: Bull Call Spread and Iron Condor analysis implemented
-- [ ] **Binomial Tree Model**: American options pricing with early exercise features
+- [X] **Dividend-Aware Pricing**: Black-Scholes-Merton with continuous dividend yield (q)
+- [X] **Binomial Tree Model**: Cox-Ross-Rubinstein pricing for European and American options with early exercise
+- [X] **Extended Risk Analytics**: Sortino, Calmar, Omega ratios, CAPM beta/alpha, parametric ES and Cornish-Fisher VaR
+- [X] **Portfolio Optimization**: Mean-variance optimization (minimum-variance, maximum-Sharpe, efficient frontier)
 - [ ] **Advanced Monte Carlo**: Exotic options pricing and complex risk modeling
-- [ ] **Portfolio Optimization**: Mean-variance and Black-Litterman model implementations
+- [ ] **Black-Litterman**: Views-based allocation on top of mean-variance optimization
 - [ ] **Volatility Models**: GARCH and stochastic volatility surface modeling
 - [ ] **Fixed Income Tools**: Bond pricing, yield curve analysis, and duration calculations
 - [ ] **Performance Attribution**: Factor-based return decomposition and style analysis
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-- **💬 [Join the Discussions](https://github.com/jeevanba273/quantflow-finance/discussions)**: Share insights, provide feedback, or ask questions about quantitative finance implementations
-- **🐛 [Report Issues](https://github.com/jeevanba273/quantflow-finance/issues)**: Submit bugs or request new financial models and advanced features
-- **💡 [Submit Pull Requests](https://github.com/jeevanba273/quantflow-finance/blob/main/CONTRIBUTING.md)**: Contribute new models, optimizations, or documentation improvements
+- **[Join the Discussions](https://github.com/jeevanba273/quantflow-finance/discussions)**: Share insights, provide feedback, or ask questions about quantitative finance implementations
+- **[Report Issues](https://github.com/jeevanba273/quantflow-finance/issues)**: Submit bugs or request new financial models and advanced features
+- **[Submit Pull Requests](https://github.com/jeevanba273/quantflow-finance/blob/main/CONTRIBUTING.md)**: Contribute new models, optimizations, or documentation improvements
 
 <details closed>
 <summary>Contributing Guidelines</summary>
@@ -705,7 +717,7 @@ python comprehensive_test.py
 
 ---
 
-## 📜 License
+## License
 
 QuantFlow Finance is protected under the [MIT License](https://choosealicense.com/licenses/mit/). For more details, refer to the [LICENSE](https://choosealicense.com/licenses/mit/) file.
 
@@ -713,7 +725,7 @@ QuantFlow Finance is protected under the [MIT License](https://choosealicense.co
 
 ---
 
-## ✨ Acknowledgments
+## Acknowledgments
 
 - **Black & Scholes (1973)**: *The Pricing of Options and Corporate Liabilities* - Foundation of modern derivatives theory
 - **Merton (1973)**: Extensions to Black-Scholes model and risk-neutral valuation framework
@@ -728,6 +740,6 @@ QuantFlow Finance is protected under the [MIT License](https://choosealicense.co
 - **Mathematical Precision**: Achieving error rates below 0.000001 in put-call parity verification
 - **Academic Standards**: Implementation meeting peer-review quality for quantitative finance research
 
-<div align="left"><a href="#top">⬆ Return</a></div>
+<div align="left"><a href="#top">Return</a></div>
 
 ---

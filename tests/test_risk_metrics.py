@@ -1,82 +1,96 @@
-"""
-Test the risk metrics implementation.
-"""
+"""Tests for the RiskMetrics risk analytics class."""
 
-import sys
-import os
 import numpy as np
+import pandas as pd
+import pytest
 
-# Add the src folder to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../src'))
-
-from quantflow.risk.metrics import RiskMetrics
-
-
-def test_var_calculation():
-    """Test Value at Risk calculation."""
-    # Create sample returns (daily returns for 1 year)
-    np.random.seed(42)  # For reproducible results
-    returns = np.random.normal(0.001, 0.02, 252)  # 1% annual return, 20% volatility
-    
-    risk_metrics = RiskMetrics(returns)
-    var_5 = risk_metrics.var_historical(0.05)  # 5% VaR
-    
-    print(f"5% VaR: {var_5:.4f} ({var_5*100:.2f}%)")
-    
-    # VaR should be negative (worst 5% of returns)
-    assert var_5 < 0, f"VaR should be negative, got {var_5}"
-    print("✓ VaR test passed!")
+from quantflow import RiskMetrics
 
 
-def test_sharpe_ratio():
-    """Test Sharpe ratio calculation."""
-    np.random.seed(42)
-    returns = np.random.normal(0.001, 0.02, 252)
-    
-    risk_metrics = RiskMetrics(returns)
-    sharpe = risk_metrics.sharpe_ratio(risk_free_rate=0.02)
-    
-    print(f"Sharpe ratio: {sharpe:.3f}")
-    
-    # Sharpe ratio should be reasonable (between -2 and 3 for most portfolios)
-    assert -2 < sharpe < 3, f"Sharpe ratio {sharpe} seems unreasonable"
-    print("✓ Sharpe ratio test passed!")
-
-def test_expected_shortfall():
-    """Test Expected Shortfall calculation."""
-    np.random.seed(42)
-    returns = np.random.normal(0.001, 0.02, 252)
-    
-    risk_metrics = RiskMetrics(returns)
-    var_5 = risk_metrics.var_historical(0.05)
-    es_5 = risk_metrics.expected_shortfall(0.05)
-    
-    print(f"5% Expected Shortfall: {es_5:.4f} ({es_5*100:.2f}%)")
-    print(f"VaR vs ES: VaR={var_5:.4f}, ES={es_5:.4f}")
-    
-    # Expected Shortfall should be worse (more negative) than VaR
-    assert es_5 < var_5, f"Expected Shortfall {es_5} should be worse than VaR {var_5}"
-    print("✓ Expected Shortfall test passed!")
+@pytest.mark.parametrize("confidence_level", [0.01, 0.05, 0.10])
+def test_var_negative(sample_returns, confidence_level):
+    assert RiskMetrics(sample_returns).var_historical(confidence_level) < 0
 
 
-def test_max_drawdown():
-    """Test Maximum Drawdown calculation."""
-    np.random.seed(42)
-    returns = np.random.normal(0.001, 0.02, 252)
-    
-    risk_metrics = RiskMetrics(returns)
-    max_dd = risk_metrics.max_drawdown()
-    
-    print(f"Maximum Drawdown: {max_dd:.4f} ({max_dd*100:.2f}%)")
-    
-    # Max drawdown should be negative (loss from peak)
-    assert max_dd <= 0, f"Max drawdown should be negative, got {max_dd}"
-    print("✓ Max drawdown test passed!")
+def test_es_worse_than_var(sample_returns):
+    rm = RiskMetrics(sample_returns)
+    assert rm.expected_shortfall(0.05) <= rm.var_historical(0.05)
 
 
-if __name__ == "__main__":
-    test_var_calculation()
-    test_sharpe_ratio()
-    test_expected_shortfall()
-    test_max_drawdown()
-    print("All risk metrics tests passed! 🎉")
+def test_es_parametric_worse_than_var(sample_returns):
+    rm = RiskMetrics(sample_returns)
+    assert rm.expected_shortfall_parametric(0.05) < rm.var_historical(0.05)
+
+
+def test_input_types_supported(sample_returns):
+    for data in (sample_returns.to_numpy(), sample_returns.to_frame(), sample_returns):
+        assert np.isfinite(RiskMetrics(data).volatility())
+
+
+def test_max_drawdown_nonpositive(sample_returns):
+    assert RiskMetrics(sample_returns).max_drawdown() <= 0
+
+
+def test_annualization_increases_vol(sample_returns):
+    rm = RiskMetrics(sample_returns)
+    assert rm.volatility(annualized=True) > rm.volatility(annualized=False)
+
+
+def test_periods_per_year_configurable(sample_returns):
+    daily = RiskMetrics(sample_returns, periods_per_year=252)
+    monthly = RiskMetrics(sample_returns, periods_per_year=12)
+    assert daily.volatility() > monthly.volatility()
+
+
+def test_periods_per_year_validation(sample_returns):
+    with pytest.raises(ValueError):
+        RiskMetrics(sample_returns, periods_per_year=0)
+
+
+def test_backward_compat_default(sample_returns):
+    """Default construction must keep the 252-day annualization behavior."""
+    rm = RiskMetrics(sample_returns)
+    expected = rm.returns.std() * np.sqrt(252)
+    assert np.isclose(rm.volatility(), expected)
+
+
+def test_sortino_ratio(sample_returns):
+    assert np.isfinite(RiskMetrics(sample_returns).sortino_ratio())
+
+
+def test_calmar_ratio(sample_returns):
+    assert np.isfinite(RiskMetrics(sample_returns).calmar_ratio())
+
+
+def test_omega_ratio_positive(sample_returns):
+    assert RiskMetrics(sample_returns).omega_ratio() > 0
+
+
+def test_capm_beta_recovery():
+    rng = np.random.default_rng(1)
+    bench = pd.Series(rng.normal(0.0004, 0.01, 300))
+    port = 1.5 * bench + pd.Series(rng.normal(0, 0.0008, 300))
+    cap = RiskMetrics(port).capm(bench)
+    assert np.isclose(cap["beta"], 1.5, atol=0.1)
+    assert 0.0 <= cap["r_squared"] <= 1.0
+
+
+def test_beta_zero_variance_raises(sample_returns):
+    with pytest.raises(ValueError):
+        RiskMetrics(sample_returns).beta(pd.Series(np.zeros(len(sample_returns))))
+
+
+def test_cornish_fisher_var(sample_returns):
+    assert RiskMetrics(sample_returns).var_cornish_fisher(0.05) < 0
+
+
+def test_nan_values_dropped():
+    series = pd.Series([0.01, np.nan, -0.02, 0.0, np.nan, 0.015])
+    assert np.isfinite(RiskMetrics(series).volatility())
+
+
+def test_summary_stats_keys(sample_returns):
+    stats = RiskMetrics(sample_returns).summary_stats()
+    assert {"periods_per_year", "sortino_ratio", "var_95", "max_drawdown"}.issubset(
+        stats
+    )

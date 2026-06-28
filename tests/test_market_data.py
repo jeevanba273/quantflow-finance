@@ -1,52 +1,48 @@
-"""
-Test the market data implementation.
-"""
+"""Tests for the MarketData fetcher (offline via mocked yfinance)."""
 
-import sys
-import os
+import pandas as pd
+import pytest
 
-# Add the src folder to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../src'))
-
-from quantflow.data.fetcher import MarketData
+from quantflow import MarketData
 
 
-def test_single_stock_fetch():
-    """Test fetching data for a single stock."""
-    print("📈 Fetching AAPL data...")
-    
-    # Fetch Apple stock data for 6 months
-    data = MarketData.fetch_stock_data('AAPL', period='6mo')
-    
-    print(f"Data shape: {data.shape}")
-    print(f"Date range: {data.index[0].date()} to {data.index[-1].date()}")
-    print(f"Latest price: ${data.iloc[-1, 0]:.2f}")
-    
-    # Check that we got reasonable data
-    assert len(data) > 100, f"Expected more data points, got {len(data)}"
-    assert data.iloc[-1, 0] > 0, "Stock price should be positive"
-    print("✓ Single stock fetch test passed!")
+def test_fetch_single(mock_yfinance):
+    data = MarketData.fetch_stock_data("AAPL", period="6mo")
+    assert isinstance(data, pd.DataFrame)
+    assert "AAPL" in data.columns
+    assert (data["AAPL"] > 0).all()
 
 
-def test_returns_calculation():
-    """Test returns calculation."""
-    print("\n📊 Testing returns calculation...")
-    
-    # Fetch data and calculate returns
-    data = MarketData.fetch_stock_data('MSFT', period='3mo')
-    returns = MarketData.calculate_returns(data)
-    
-    print(f"Returns data shape: {returns.shape}")
-    print(f"Average daily return: {returns.mean().iloc[0]:.4f} ({returns.mean().iloc[0]*100:.2f}%)")
-    print(f"Daily volatility: {returns.std().iloc[0]:.4f} ({returns.std().iloc[0]*100:.2f}%)")
-    
-    # Check returns are reasonable
-    assert len(returns) == len(data) - 1, "Returns should have one less observation than prices"
-    assert not returns.isna().any().any(), "Returns should not contain NaN values"
-    print("✓ Returns calculation test passed!")
+def test_fetch_multiple(mock_yfinance):
+    data = MarketData.fetch_stock_data(["AAPL", "MSFT"], period="1y")
+    assert {"AAPL", "MSFT"}.issubset(data.columns)
 
 
-if __name__ == "__main__":
-    test_single_stock_fetch()
-    test_returns_calculation()
-    print("\nAll market data tests passed! 🎉")
+@pytest.mark.parametrize("method", ["simple", "log"])
+def test_returns_length_and_no_nan(mock_yfinance, method):
+    prices = MarketData.fetch_stock_data("MSFT", period="3mo")
+    returns = MarketData.calculate_returns(prices, method=method)
+    assert len(returns) == len(prices) - 1
+    assert not returns.isna().any().any()
+
+
+def test_bad_return_method(sample_prices):
+    with pytest.raises(ValueError):
+        MarketData.calculate_returns(sample_prices, method="quadratic")
+
+
+def test_empty_returns_raises():
+    with pytest.raises(ValueError):
+        MarketData.calculate_returns(pd.DataFrame())
+
+
+def test_fetch_empty_raises(mock_yfinance_empty):
+    with pytest.raises(Exception):
+        MarketData.fetch_stock_data("FAKE", period="1mo", max_tries=1)
+
+
+@pytest.mark.network
+def test_live_smoke():
+    """Optional live smoke test; deselected in CI with -m 'not network'."""
+    data = MarketData.fetch_stock_data("AAPL", period="5d")
+    assert not data.empty
