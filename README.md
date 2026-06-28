@@ -14,6 +14,7 @@
 <img src="https://img.shields.io/github/languages/count/jeevanba273/quantflow-finance?style=flat&color=0080ff" alt="repo-language-count">
 <img src="https://img.shields.io/pypi/v/quantflow-finance?style=flat&logo=pypi&logoColor=white&color=0080ff&cache=bust" alt="pypi-version">
 <img src="https://static.pepy.tech/badge/quantflow-finance?style=flat&color=0080ff" alt="total-downloads">
+<a href="https://quantflow-finance.readthedocs.io"><img src="https://img.shields.io/readthedocs/quantflow-finance?style=flat&logo=readthedocs&logoColor=white&color=0080ff" alt="docs"></a>
 
 <em>Built with the tools and technologies:</em>
 
@@ -30,6 +31,9 @@
 ```bash
 pip install quantflow-finance
 ```
+
+**Documentation:** [quantflow-finance.readthedocs.io](https://quantflow-finance.readthedocs.io)
+
 ---
 
 ## Table of Contents
