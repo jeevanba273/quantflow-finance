@@ -37,6 +37,11 @@ All changes are additive and backward-compatible. Existing `BlackScholes`,
 - Removed decorative emojis from the README and example scripts for a more
   professional presentation.
 
+### Removed
+- Dropped Python 3.8 support (end-of-life since October 2024; the `yfinance`
+  dependency chain and current numpy/pandas no longer support it). Minimum
+  supported version is now Python 3.9.
+
 ### Added (project infrastructure)
 - `.gitignore`, `.flake8`, `CHANGELOG.md`, `CONTRIBUTING.md`, and GitHub Actions
   workflows for CI (lint + test matrix across Python 3.8-3.13) and PyPI release.

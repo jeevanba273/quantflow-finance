@@ -205,7 +205,7 @@ QuantFlow Finance implements industry-standard models with rigorous validation:
 - **Mathematical Libraries**: NumPy 1.20+, SciPy 1.7+, Pandas 1.3+
 - **Testing Coverage**: 100% mathematical validation with comprehensive test suite
 - **Performance**: 10,000+ option calculations per second
-- **Python Support**: 3.8+ (tested on 3.12, 3.13)
+- **Python Support**: 3.9+ (tested on 3.9 through 3.13)
 - **Memory Usage**: Optimized for large datasets with vectorized operations
 - **Real-Time Capability**: Live market data integration with robust error handling
 
@@ -215,7 +215,7 @@ QuantFlow Finance implements industry-standard models with rigorous validation:
 
 ### Prerequisites
 
-- **Python:** 3.8 or higher
+- **Python:** 3.9 or higher
 - **Package Manager:** pip (included with Python)
 
 ### Installation

@@ -7,7 +7,7 @@ name = "quantflow-finance"
 dynamic = ["version"]
 description = "Professional quantitative finance library for options pricing, risk analytics, and portfolio management"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = { text = "MIT License" }
 authors = [{ name = "Jeevan B A", email = "jeevanba273@gmail.com" }]
 keywords = [
@@ -30,7 +30,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -89,4 +88,4 @@ source = ["quantflow"]
 
 [tool.black]
 line-length = 88
-target-version = ["py38"]
+target-version = ["py39"]
