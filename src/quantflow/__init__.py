@@ -3,7 +3,7 @@ QuantFlow: option pricing, return-based risk metrics and mean-variance
 portfolio optimisation on NumPy, SciPy and pandas.
 """
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "Jeevan B A"
 __email__ = "jeevanba273@gmail.com"
 
