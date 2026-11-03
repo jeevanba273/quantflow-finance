@@ -85,9 +85,9 @@ where = ["src"]
 version = { attr = "quantflow.__version__" }
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "src/quantflow"]
 pythonpath = ["src"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers --doctest-modules"
 markers = [
     "network: tests that hit the live network (deselected in CI with -m 'not network')",
 ]
