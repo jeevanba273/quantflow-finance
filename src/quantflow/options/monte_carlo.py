@@ -61,8 +61,7 @@ class MonteCarlo(OptionPricer):
         ``'call'``/``'put'`` and continuous dividend yield.
     n_paths : int, default 100_000
         Number of simulated terminal prices. Must be even when
-        ``antithetic=True``. Memory use grows linearly (about 32 bytes per
-        path).
+        ``antithetic=True``. All paths are held in memory at once.
     antithetic : bool, default False
         Pair every normal draw ``Z`` with ``-Z`` and average the two
         discounted payoffs. The pairs are the independent samples used for
