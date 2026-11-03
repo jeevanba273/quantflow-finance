@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "quantflow-finance"
 dynamic = ["version"]
-description = "Black-Scholes-Merton and binomial-tree option pricing, return-based risk metrics and mean-variance portfolio optimisation"
+description = "Black-Scholes-Merton, binomial-tree and Monte Carlo option pricing, return-based risk metrics and mean-variance portfolio optimisation"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
