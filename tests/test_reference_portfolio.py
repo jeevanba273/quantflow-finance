@@ -98,6 +98,18 @@ def test_tangency_closed_form():
     )
 
 
+@pytest.mark.parametrize("seed", [4, 5])
+def test_max_sharpe_with_shorting_raises_when_no_tangency_exists(seed):
+    # Here 1' S^-1 (mu - rf) < 0: the minimum-variance return is below rf, so
+    # among fully invested portfolios the Sharpe ratio has no maximum; it is
+    # only approached with unbounded long-short positions.
+    frame = _returns(seed)
+    mu, cov = _moments(frame)
+    assert np.linalg.solve(cov, mu - 0.02).sum() < 0
+    with pytest.raises(ValueError, match="risk-free rate"):
+        Portfolio(frame).max_sharpe(risk_free_rate=0.02, allow_short=True)
+
+
 @pytest.mark.parametrize("seed", [6, 7, 8])
 def test_long_only_constraints_hold(seed):
     p = Portfolio(_returns(seed, n_assets=5))

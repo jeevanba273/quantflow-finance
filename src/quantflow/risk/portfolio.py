@@ -10,7 +10,7 @@ for an optimized portfolio.
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
+from scipy.optimize import OptimizeResult, minimize
 
 from .metrics import RiskMetrics
 
@@ -199,10 +199,29 @@ class Portfolio:
 
     def max_sharpe(self, risk_free_rate=0.02, allow_short=False) -> dict:
         """Maximum-Sharpe (tangency) portfolio (weights sum to 1)."""
+        if allow_short:
+            return self._tangency(risk_free_rate)
         constraints = [{"type": "eq", "fun": lambda w: w.sum() - 1.0}]
         res = self._solve(
             lambda w: -self._sharpe(w, risk_free_rate), constraints, allow_short
         )
+        return self._result(res, risk_free_rate)
+
+    def _tangency(self, risk_free_rate):
+        """Closed-form tangency portfolio, w proportional to S^-1 (mu - rf)."""
+        m = self.periods_per_year
+        try:
+            x = np.linalg.solve(self._cov * m, self._mu * m - risk_free_rate)
+        except np.linalg.LinAlgError as exc:
+            raise ValueError("Covariance matrix is singular") from exc
+        if x.sum() <= 0:
+            raise ValueError(
+                "No maximum-Sharpe portfolio with weights summing to 1: the "
+                "minimum-variance portfolio's return is below the risk-free "
+                "rate, so with short sales the Sharpe ratio can only be "
+                "approached with unbounded long-short positions"
+            )
+        res = OptimizeResult(x=x / x.sum(), success=True, message="closed form")
         return self._result(res, risk_free_rate)
 
     def efficient_frontier(self, n_points=50, allow_short=False) -> pd.DataFrame:
