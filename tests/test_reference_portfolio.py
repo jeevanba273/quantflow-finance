@@ -133,3 +133,17 @@ def test_frontier_matches_closed_form_with_shorting():
     for ret, vol in zip(frontier["return"], frontier["volatility"], strict=True):
         exact_var = (C * ret * ret - 2 * A * ret + B) / D
         assert vol == pytest.approx(np.sqrt(exact_var), rel=1e-6)
+
+
+@pytest.mark.parametrize("seed", [0, 3])
+def test_long_only_optimisers_beat_random_search(seed):
+    # An independent check of SLSQP where no closed form exists: no portfolio
+    # among 200,000 random long-only weight vectors may do better.
+    frame = _returns(seed)
+    mu, cov = _moments(frame)
+    w = np.random.default_rng(seed + 100).dirichlet(np.ones(len(mu)), 200_000)
+    var = np.einsum("ij,jk,ik->i", w, cov, w)
+    sharpe = (w @ mu - 0.02) / np.sqrt(var)
+    p = Portfolio(frame)
+    assert p.max_sharpe(0.02)["sharpe"] >= sharpe.max() - 1e-9
+    assert p.min_variance()["volatility"] <= np.sqrt(var.min()) + 1e-9

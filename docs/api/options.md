@@ -5,11 +5,17 @@
 
 .. autoclass:: BlackScholes
    :members:
-   :undoc-members:
-   :show-inheritance:
+   :inherited-members:
+
+.. autofunction:: black_scholes_price
+
+.. autofunction:: black_scholes_greeks
 
 .. autoclass:: BinomialTree
    :members:
-   :undoc-members:
-   :show-inheritance:
+
+.. autoclass:: MonteCarlo
+   :members:
+
+.. autoclass:: MonteCarloResult
 ```

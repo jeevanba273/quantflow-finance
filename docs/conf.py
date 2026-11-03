@@ -1,9 +1,9 @@
-"""Sphinx configuration for the QuantFlow Finance documentation."""
+"""Sphinx configuration for the quantflow documentation."""
 
 import importlib.metadata
 
 # -- Project information -----------------------------------------------------
-project = "QuantFlow Finance"
+project = "quantflow"
 author = "Jeevan B A"
 copyright = "2026, Jeevan B A"
 
@@ -38,9 +38,6 @@ root_doc = "index"
 # -- Autodoc / numpydoc ------------------------------------------------------
 autodoc_member_order = "bysource"
 autodoc_typehints = "signature"
-# yfinance is only needed at call time; mock it so the build never touches the
-# network or its heavy import chain.
-autodoc_mock_imports = ["yfinance"]
 autosummary_generate = True
 
 numpydoc_show_class_members = False
@@ -65,7 +62,6 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
-    "matplotlib": ("https://matplotlib.org/stable/", None),
 }
 
 # -- HTML output (pydata-sphinx-theme) ---------------------------------------

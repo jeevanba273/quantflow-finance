@@ -1,28 +1,29 @@
-# API Reference
+# API reference
+
+Generated from the docstrings. Everything listed is importable from the
+top-level `quantflow` package.
 
 ```{toctree}
-:hidden:
-:maxdepth: 2
+:maxdepth: 1
 
 options
 risk
 data
 ```
 
-Complete reference for every public class, generated from the source docstrings.
-
 ```{eval-rst}
+.. currentmodule:: quantflow
+
 .. autosummary::
    :nosignatures:
 
-   quantflow.BlackScholes
-   quantflow.BinomialTree
-   quantflow.RiskMetrics
-   quantflow.Portfolio
-   quantflow.MarketData
-```
-
-- {doc}`options` — {class}`~quantflow.BlackScholes`, {class}`~quantflow.BinomialTree`
-- {doc}`risk` — {class}`~quantflow.RiskMetrics`, {class}`~quantflow.Portfolio`
-- {doc}`data` — {class}`~quantflow.MarketData`
+   BlackScholes
+   black_scholes_price
+   black_scholes_greeks
+   BinomialTree
+   MonteCarlo
+   MonteCarloResult
+   RiskMetrics
+   Portfolio
+   MarketData
 ```
