@@ -40,7 +40,7 @@ background load, so compare rows within one run.
 | RAM | 31.5 GB |
 | OS | Windows-11-10.0.26300-SP0 |
 | Python | 3.13.5 |
-| quantflow | 0.2.1 |
+| quantflow | 0.3.0 |
 | numpy | 2.5.4 |
 | scipy | 1.18.1 |
 | QuantLib | 1.44 |
@@ -77,23 +77,33 @@ Inputs drawn uniformly (S 80-120, K 70-130, T 7-730 days, r 0-6%, q 0-2%, sigma 
 
 | Task | Implementation | Options per second (median) | IQR | Note |
 |---|---|---|---|---|
-| Price, vectorised | quantflow black_scholes_price | 4,996,899 | 4,940,184 - 5,295,143 | includes input validation |
-| Price, vectorised | plain NumPy/SciPy (ndtr) | 8,378,030 | 7,659,243 - 8,661,998 | same formula, no validation |
-| Price + 5 Greeks, vectorised | quantflow black_scholes_greeks | 2,808,785 | 2,705,593 - 2,841,853 |  |
-| Price, scalar loop | quantflow BlackScholes(...).price() | 71,751 | 63,183 - 81,425 | object per option |
-| Price + 5 Greeks, scalar loop | quantflow BlackScholes(...).greeks() | 48,941 | 43,440 - 50,629 |  |
-| Price, scalar loop | vollib black_scholes_merton | 375,280 | 324,528 - 407,621 | pure Python |
-| Price + 5 Greeks, scalar loop | vollib analytical greeks | 78,070 | 75,630 - 81,488 | pure Python, six calls per option |
-| Price, scalar loop | QuantLib AnalyticEuropeanEngine | 258,401 | 227,826 - 272,014 | C++ via SWIG; objects built once, quote bumped |
-| Price, scalar loop | QuantLib, objects built per option | 25,275 | 22,242 - 25,747 | C++ via SWIG; includes curve and process set-up |
+| Price, vectorised | quantflow black_scholes_price | 5,691,834 | 5,637,157 - 5,721,629 | includes input validation |
+| Price, vectorised | plain NumPy/SciPy (ndtr) | 9,059,514 | 8,946,849 - 9,140,442 | same formula, no validation |
+| Price + 5 Greeks, vectorised | quantflow black_scholes_greeks | 2,813,832 | 2,799,138 - 2,930,661 |  |
+| Price, scalar loop | quantflow BlackScholes(...).price() | 90,568 | 89,604 - 91,769 | object per option |
+| Price + 5 Greeks, scalar loop | quantflow BlackScholes(...).greeks() | 57,468 | 56,993 - 58,254 |  |
+| Price, scalar loop | vollib black_scholes_merton | 460,384 | 448,209 - 463,280 | pure Python |
+| Price + 5 Greeks, scalar loop | vollib analytical greeks | 83,218 | 82,183 - 88,233 | pure Python, six calls per option |
+| Price, scalar loop | QuantLib AnalyticEuropeanEngine | 272,509 | 248,268 - 288,080 | C++ via SWIG; objects built once, quote bumped |
+| Price, scalar loop | QuantLib, objects built per option | 26,515 | 25,934 - 26,832 | C++ via SWIG; includes curve and process set-up |
+
+Cost breakdown (median per call):
+
+| Step | Time |
+|---|---|
+| validate and broadcast 1,000,000 inputs | 36.4 ms |
+| price 1,000,000 validated inputs | 138.1 ms |
+| plain NumPy price of 1,000,000 inputs | 112.3 ms |
+| construct one BlackScholes | 8.0 us |
+| price() on a built BlackScholes | 2.7 us |
 
 Implied volatility: 2,000 solves per repetition from exact model prices (options with vega >= 1e-3 from the inputs above).
 
 | Solver | Solves per second (median) | IQR | Note |
 |---|---|---|---|
-| quantflow implied_volatility | 34,718 | 32,979 - 35,011 | Brent's method, Python, tol 1e-10 |
-| vollib implied_volatility | 55,460 | 53,719 - 55,831 | Let's Be Rational, pure Python |
-| QuantLib impliedVolatility | 72,191 | 64,669 - 74,162 | C++ via SWIG, accuracy 1e-12 |
+| quantflow implied_volatility | 36,366 | 35,916 - 36,391 | Brent's method, Python, tol 1e-10 |
+| vollib implied_volatility | 56,190 | 55,205 - 56,821 | Let's Be Rational, pure Python |
+| QuantLib impliedVolatility | 71,124 | 68,791 - 72,099 | C++ via SWIG, accuracy 1e-12 |
 
 ### Monte Carlo
 
@@ -102,19 +112,19 @@ At-the-money call, S=K=100, T=1, r=5%, sigma=20%; Black-Scholes price 10.450584.
 | Paths | Price | Std error | Error | Error / std error | Time (s) |
 |---|---|---|---|---|---|
 | 1,000 | 9.9120 | 0.44835 | -0.53860 | -1.20 | 0.000 |
-| 10,000 | 10.3452 | 0.14766 | -0.10540 | -0.71 | 0.000 |
+| 10,000 | 10.3452 | 0.14766 | -0.10540 | -0.71 | 0.001 |
 | 100,000 | 10.4205 | 0.04677 | -0.03004 | -0.64 | 0.002 |
-| 1,000,000 | 10.4532 | 0.01473 | +0.00261 | +0.18 | 0.035 |
-| 10,000,000 | 10.4482 | 0.00465 | -0.00239 | -0.51 | 0.402 |
+| 1,000,000 | 10.4532 | 0.01473 | +0.00261 | +0.18 | 0.042 |
+| 10,000,000 | 10.4482 | 0.00465 | -0.00239 | -0.51 | 0.437 |
 
 Variance reduction at 1,000,000 paths. Efficiency is 1 / (std error^2 x time), relative to plain Monte Carlo (higher is better).
 
 | Method | Std error | Time (s) | Relative efficiency |
 |---|---|---|---|
-| plain | 0.01473 | 0.033 | 1.0 |
-| antithetic | 0.01042 | 0.031 | 2.1 |
-| control variate | 0.00562 | 0.047 | 4.8 |
-| antithetic + control variate | 0.00276 | 0.038 | 24.6 |
+| plain | 0.01473 | 0.035 | 1.0 |
+| antithetic | 0.01042 | 0.028 | 2.5 |
+| control variate | 0.00562 | 0.042 | 5.7 |
+| antithetic + control variate | 0.00276 | 0.033 | 29.6 |
 
 ### American put
 
@@ -122,12 +132,12 @@ S=100, K=105, T=1 year, r=4%, sigma=25%, no dividends. Reference: QuantLib FdBla
 
 | Method | Steps | Price | Difference from reference | Time (ms) |
 |---|---|---|---|---|
-| quantflow BinomialTree (CRR) | 100 | 11.009607 | -0.010623 | 0.86 |
-| QuantLib BinomialVanillaEngine crr | 100 | 11.009788 | -0.010442 | 0.06 |
-| quantflow BinomialTree (CRR) | 500 | 11.022244 | +0.002014 | 6.98 |
-| QuantLib BinomialVanillaEngine crr | 500 | 11.022280 | +0.002050 | 0.94 |
-| quantflow BinomialTree (CRR) | 2000 | 11.021378 | +0.001148 | 67.40 |
-| QuantLib BinomialVanillaEngine crr | 2000 | 11.021387 | +0.001157 | 15.40 |
+| quantflow BinomialTree (CRR) | 100 | 11.009607 | -0.010623 | 1.00 |
+| QuantLib BinomialVanillaEngine crr | 100 | 11.009788 | -0.010442 | 0.09 |
+| quantflow BinomialTree (CRR) | 500 | 11.022244 | +0.002014 | 7.73 |
+| QuantLib BinomialVanillaEngine crr | 500 | 11.022280 | +0.002050 | 1.09 |
+| quantflow BinomialTree (CRR) | 2000 | 11.021378 | +0.001148 | 63.04 |
+| QuantLib BinomialVanillaEngine crr | 2000 | 11.021387 | +0.001157 | 14.91 |
 
 ## Reading the results
 

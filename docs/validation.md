@@ -247,8 +247,9 @@ With short sales allowed, the minimum-variance and target-return weights
 from SLSQP are compared with the closed forms of Merton (1972). (The
 tangency portfolio with short sales is computed from its closed form, so
 comparing it with that formula would test nothing.) Long-only problems have
-no closed form; there the optimiser must do at least as well as the best of
-200,000 random long-only portfolios. Simulated returns of four assets:
+no closed form; there the optimiser's Sharpe ratio must be at least the
+highest, and its volatility at most the lowest, among 200,000 random
+long-only portfolios. Simulated returns of four assets:
 
 ```python
 import numpy as np
@@ -277,16 +278,16 @@ for label, got, exact in [
 
 W = np.random.default_rng(1).dirichlet(np.ones(4), 200_000)
 var = np.einsum("ij,jk,ik->i", W, S, W)
-best_sharpe = ((W @ mu - 0.02) / np.sqrt(var)).max()
-print(f"long-only max Sharpe     SLSQP {p.max_sharpe(0.02)['sharpe']:.6f}  best random {best_sharpe:.6f}")
-print(f"long-only min volatility SLSQP {p.min_variance()['volatility']:.6f}  best random {np.sqrt(var.min()):.6f}")
+top_sharpe = ((W @ mu - 0.02) / np.sqrt(var)).max()
+print(f"long-only max Sharpe     SLSQP {p.max_sharpe(0.02)['sharpe']:.6f}  highest random {top_sharpe:.6f}")
+print(f"long-only min volatility SLSQP {p.min_variance()['volatility']:.6f}  lowest random {np.sqrt(var.min()):.6f}")
 ```
 
 ```text
 global minimum variance  max |w - w_exact| below 1e-6  |sum - 1| below 1e-12: True
 target return 15%        max |w - w_exact| below 1e-6  |sum - 1| below 1e-12: True
-long-only max Sharpe     SLSQP 0.820501  best random 0.820434
-long-only min volatility SLSQP 0.115378  best random 0.115408
+long-only max Sharpe     SLSQP 0.820501  highest random 0.820434
+long-only min volatility SLSQP 0.115378  lowest random 0.115408
 ```
 
 The tests also check the two-asset minimum-variance weight
