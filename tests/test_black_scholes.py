@@ -141,3 +141,15 @@ def test_iv_rejects_arbitrage_violation():
         option.implied_volatility(100.0)
     with pytest.raises(ValueError):
         option.implied_volatility(150.0)
+
+
+def test_text_output_is_ascii():
+    # Non-ASCII symbols raised UnicodeEncodeError on Windows cp1252 consoles.
+    from quantflow import BinomialTree
+
+    for obj in (
+        BlackScholes(100, 100, 1, 0.05, 0.2),
+        BinomialTree(100, 100, 1, 0.05, 0.2, "put", "american", steps=50),
+    ):
+        assert obj.summary().isascii()
+        assert repr(obj).isascii()

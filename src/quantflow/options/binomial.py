@@ -204,7 +204,7 @@ class BinomialTree(OptionPricer):
         return (
             f"BinomialTree({self.exercise.capitalize()} "
             f"{self.option_type.capitalize()}: S={self.S}, K={self.K}, "
-            f"T={self.T:.3f}, r={self.r:.3f}, σ={self.sigma:.3f}, "
+            f"T={self.T:.3f}, r={self.r:.3f}, sigma={self.sigma:.3f}, "
             f"q={self.q:.3f}, steps={self.steps})"
         )
 
@@ -222,15 +222,15 @@ class BinomialTree(OptionPricer):
             f"  Time to Expiry (T): {self.T:>8.3f} years\n"
             f"  Risk-free Rate (r): {self.r:>8.2%}\n"
             f"  Dividend Yield (q): {self.q:>8.2%}\n"
-            f"  Volatility (σ):     {self.sigma:>8.2%}\n"
+            f"  Volatility (sigma): {self.sigma:>8.2%}\n"
             f"  Steps:              {self.steps:>8d}\n\n"
             f"Valuation:\n"
             f"  Option Price:       ${g['price']:>8.2f}\n"
             f"  Early Ex. Premium:  ${premium:>8.4f}\n\n"
             f"Greeks:\n"
-            f"  Delta (Δ):          {g['delta']:>8.4f}\n"
-            f"  Gamma (Γ):          {g['gamma']:>8.4f}\n"
-            f"  Theta (Θ):          ${g['theta']:>8.2f} /year\n"
-            f"  Vega (ν):           ${g['vega']:>8.2f} /1% vol\n"
-            f"  Rho (ρ):            ${g['rho']:>8.2f} /1% rate"
+            f"  Delta:              {g['delta']:>8.4f}\n"
+            f"  Gamma:              {g['gamma']:>8.4f}\n"
+            f"  Theta:              ${g['theta']:>8.2f} /year\n"
+            f"  Vega:               ${g['vega']:>8.2f} /1% vol\n"
+            f"  Rho:                ${g['rho']:>8.2f} /1% rate"
         )

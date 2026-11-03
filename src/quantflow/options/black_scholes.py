@@ -419,7 +419,7 @@ class BlackScholes:
         return (
             f"BlackScholes({self.option_type.capitalize()}: "
             f"S={self.S}, K={self.K}, T={self.T:.3f}, "
-            f"r={self.r:.3f}, σ={self.sigma:.3f}, q={self.q:.3f})"
+            f"r={self.r:.3f}, sigma={self.sigma:.3f}, q={self.q:.3f})"
         )
 
     def summary(self) -> str:
@@ -443,16 +443,16 @@ Parameters:
   Time to Expiry (T): {self.T:>8.3f} years
   Risk-free Rate (r): {self.r:>8.2%}
   Dividend Yield (q): {self.q:>8.2%}
-  Volatility (σ):     {self.sigma:>8.2%}
+  Volatility (sigma): {self.sigma:>8.2%}
 
 Valuation:
   Option Price:       ${price:>8.2f}
 
 Greeks:
-  Delta (Δ):          {greeks["delta"]:>8.4f}
-  Gamma (Γ):          {greeks["gamma"]:>8.4f}
-  Theta (Θ):          ${greeks["theta"]:>8.2f} /year
-  Vega (ν):           ${greeks["vega"]:>8.2f} /1% vol
-  Rho (ρ):            ${greeks["rho"]:>8.2f} /1% rate
+  Delta:              {greeks["delta"]:>8.4f}
+  Gamma:              {greeks["gamma"]:>8.4f}
+  Theta:              ${greeks["theta"]:>8.2f} /year
+  Vega:               ${greeks["vega"]:>8.2f} /1% vol
+  Rho:                ${greeks["rho"]:>8.2f} /1% rate
         """
         return summary.strip()
