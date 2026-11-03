@@ -57,13 +57,13 @@ fd_vega = (black_scholes_price(S, K, T, r, sigma + h) -
 fd_theta = -(black_scholes_price(S, K, T + h, r, sigma) -
              black_scholes_price(S, K, T - h, r, sigma)) / (2 * h)
 option = BlackScholes(S, K, T, r, sigma)
-print(f"vega  {option.vega():.10f}  finite difference {fd_vega:.10f}")
-print(f"theta {option.theta():.10f}  finite difference {fd_theta:.10f}")
+print(f"vega  {option.vega():.8f}  finite difference {fd_vega:.8f}")
+print(f"theta {option.theta():.8f}  finite difference {fd_theta:.8f}")
 ```
 
 ```text
-vega  0.3752403469  finite difference 0.3752403469
-theta -6.4140275464  finite difference -6.4140275466
+vega  0.37524035  finite difference 0.37524035
+theta -6.41402755  finite difference -6.41402755
 ```
 
 ## Greeks of a position

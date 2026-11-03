@@ -68,13 +68,13 @@ from quantflow import black_scholes_price
 S, K, T, r, sigma, q = 100, 110, 2.0, 0.03, 0.35, 0.01
 c = black_scholes_price(S, K, T, r, sigma, "call", q)
 p = black_scholes_price(S, K, T, r, sigma, "put", q)
-print(f"{c - p:.12f}")
-print(f"{S * math.exp(-q * T) - K * math.exp(-r * T):.12f}")
+print(f"{c - p:.10f}")
+print(f"{S * math.exp(-q * T) - K * math.exp(-r * T):.10f}")
 ```
 
 ```text
--5.574231363592
--5.574231363592
+-5.5742313636
+-5.5742313636
 ```
 
 ## Many options at once

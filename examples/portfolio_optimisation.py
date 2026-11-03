@@ -20,15 +20,16 @@ corr = np.array(
 )
 cov = corr * np.outer(vols, vols)
 mu = np.array([0.0004, 0.00012, 0.00025, 0.0005])
-returns = pd.DataFrame(
-    rng.multivariate_normal(mu, cov, size=2000), columns=["EQ", "BOND", "GOLD", "EM"]
-)
+# Correlated normals through a Cholesky factor, which is reproducible across
+# NumPy versions (multivariate_normal goes through an SVD and is not).
+draws = mu + rng.standard_normal((2000, 4)) @ np.linalg.cholesky(cov).T
+returns = pd.DataFrame(draws, columns=["EQ", "BOND", "GOLD", "EM"])
 
 p = Portfolio(returns)
 for label, res in [
     ("min variance", p.min_variance()),
     ("max Sharpe", p.max_sharpe(risk_free_rate=0.02)),
-    ("target 12%", p.optimize("target_return", target_return=0.12)),
+    ("target 4%", p.optimize("target_return", target_return=0.04)),
 ]:
     weights = " ".join(f"{a}={w:.3f}" for a, w in res["weights_by_asset"].items())
     print(

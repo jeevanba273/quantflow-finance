@@ -27,7 +27,9 @@ def _returns(seed, n_assets=4, n_obs=1500):
     corr = 0.3 * np.ones((n_assets, n_assets)) + 0.7 * np.eye(n_assets)
     cov = corr * np.outer(vols, vols)
     mu = np.linspace(0.0002, 0.0009, n_assets)
-    data = rng.multivariate_normal(mu, cov, size=n_obs)
+    # Cholesky rather than multivariate_normal: its SVD-based draws change
+    # between NumPy versions for the same seed.
+    data = mu + rng.standard_normal((n_obs, n_assets)) @ np.linalg.cholesky(cov).T
     return pd.DataFrame(data, columns=[f"A{i}" for i in range(n_assets)])
 
 
@@ -98,7 +100,7 @@ def test_tangency_closed_form():
     )
 
 
-@pytest.mark.parametrize("seed", [4, 5])
+@pytest.mark.parametrize("seed", [10, 16])
 def test_max_sharpe_with_shorting_raises_when_no_tangency_exists(seed):
     # Here 1' S^-1 (mu - rf) < 0: the minimum-variance return is below rf, so
     # among fully invested portfolios the Sharpe ratio has no maximum; it is

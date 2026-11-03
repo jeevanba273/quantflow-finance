@@ -17,7 +17,8 @@ vols = np.array([0.012, 0.004, 0.009, 0.014])
 corr = np.array([[1.0, -0.2, 0.1, 0.6], [-0.2, 1.0, 0.2, -0.1],
                  [0.1, 0.2, 1.0, 0.2], [0.6, -0.1, 0.2, 1.0]])
 mu = np.array([0.0004, 0.00012, 0.00025, 0.0005])
-returns = pd.DataFrame(rng.multivariate_normal(mu, corr * np.outer(vols, vols), 2000),
+chol = np.linalg.cholesky(corr * np.outer(vols, vols))
+returns = pd.DataFrame(mu + rng.standard_normal((2000, 4)) @ chol.T,
                        columns=["EQ", "BOND", "GOLD", "EM"])
 p = Portfolio(returns)
 print(p.correlation_matrix().round(2))
@@ -25,10 +26,10 @@ print(p.correlation_matrix().round(2))
 
 ```text
         EQ  BOND  GOLD    EM
-EQ    1.00 -0.17  0.12  0.60
-BOND -0.17  1.00  0.19 -0.10
-GOLD  0.12  0.19  1.00  0.23
-EM    0.60 -0.10  0.23  1.00
+EQ    1.00 -0.17  0.11  0.60
+BOND -0.17  1.00  0.20 -0.10
+GOLD  0.11  0.20  1.00  0.22
+EM    0.60 -0.10  0.22  1.00
 ```
 
 ## Optimal portfolios
@@ -40,15 +41,15 @@ def show(label, res):
 
 show("min variance", p.min_variance())
 show("max Sharpe", p.max_sharpe(risk_free_rate=0.02))
-show("target 12%", p.optimize("target_return", target_return=0.12))
+show("target 4%", p.optimize("target_return", target_return=0.04))
 show("min var, short", p.min_variance(allow_short=True))
 ```
 
 ```text
-min variance   ret 0.0753 vol 0.0549 EQ=0.117 BOND=0.811 GOLD=0.056 EM=0.016
-max Sharpe     ret 0.1051 vol 0.0681 EQ=0.005 BOND=0.597 GOLD=0.224 EM=0.173
-target 12%     ret 0.1200 vol 0.0821 EQ=0.000 BOND=0.447 GOLD=0.321 EM=0.232
-min var, short ret 0.0753 vol 0.0549 EQ=0.117 BOND=0.811 GOLD=0.056 EM=0.016
+min variance   ret 0.0048 vol 0.0548 EQ=0.115 BOND=0.813 GOLD=0.056 EM=0.016
+max Sharpe     ret 0.0550 vol 0.1198 EQ=0.424 BOND=0.000 GOLD=0.576 EM=0.000
+target 4%      ret 0.0400 vol 0.0922 EQ=0.309 BOND=0.241 GOLD=0.450 EM=0.000
+min var, short ret 0.0048 vol 0.0548 EQ=0.115 BOND=0.813 GOLD=0.056 EM=0.016
 ```
 
 Each method returns a dict with `weights`, `weights_by_asset`, annualised
@@ -77,11 +78,12 @@ print(frontier[["return", "volatility", "sharpe"]].round(4).to_string(index=Fals
 
 ```text
  return  volatility  sharpe
- 0.0753      0.0549  1.0072
- 0.0984      0.0631  1.2416
- 0.1215      0.0836  1.2130
- 0.1446      0.1112  1.1199
- 0.1677      0.1438  1.0267
+ 0.0048      0.0548 -0.2769
+ 0.0160      0.0594 -0.0667
+ 0.0272      0.0721  0.1003
+ 0.0384      0.0896  0.2058
+ 0.0496      0.1095  0.2706
+ 0.0608      0.1885  0.2165
 ```
 
 Targets run from the minimum-variance return to the highest single-asset
@@ -100,7 +102,7 @@ print(f"95% VaR {rm.var_historical(0.05):.4f}  max drawdown {rm.max_drawdown():.
 ```
 
 ```text
-95% VaR -0.0066  max drawdown -0.0978
+95% VaR -0.0123  max drawdown -0.3003
 ```
 
 ## Cautions
@@ -116,10 +118,10 @@ print(pd.DataFrame({"annual mean": returns.mean() * 252, "std error": se}).round
 
 ```text
       annual mean  std error
-EQ         0.0928     0.0042
-BOND       0.0657     0.0014
-GOLD       0.1445     0.0032
-EM         0.1908     0.0049
+EQ         0.0608     0.0042
+BOND      -0.0067     0.0014
+GOLD       0.0507     0.0031
+EM         0.0257     0.0050
 ```
 
 Small changes in the inputs can move the weights a lot (Michaud 1989). This

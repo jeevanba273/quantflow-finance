@@ -78,12 +78,19 @@ import numpy as np
 
 from quantflow import black_scholes_greeks, black_scholes_price
 
+
+def bound(x):
+    """Smallest power of ten above x (3.6e-14 -> 1e-13): rounding-level
+    errors vary in their last digits between platforms and versions."""
+    return f"1e{math.floor(math.log10(x)) + 1}"
+
+
 grid = np.array(list(itertools.product([50.0, 100.0, 180.0], [60.0, 100.0, 150.0],
                 [1 / 365, 0.25, 1.0, 5.0], [-0.01, 0.0, 0.05], [0.05, 0.3, 1.2], [0.0, 0.04])))
 S, K, T, r, v, q = grid.T
 gap = (black_scholes_price(S, K, T, r, v, "call", q) - black_scholes_price(S, K, T, r, v, "put", q)
        - (S * np.exp(-q * T) - K * np.exp(-r * T)))
-print(f"put-call parity: {len(grid)} cases, max |gap| {np.abs(gap).max():.1e}")
+print(f"put-call parity: {len(grid)} cases, max |gap| below {bound(np.abs(gap).max())}")
 
 cases = np.array(list(itertools.product([80.0, 100.0, 120.0], [0.1, 1.0, 3.0], [0.15, 0.45], [0.0, 0.03])))
 worst = {}
@@ -105,16 +112,16 @@ for kind in ("call", "put"):
         worst[name] = (max(a, diff.max()), max(r_, (diff[big] / np.abs(approx[big])).max()))
 for name, (a, rel) in worst.items():
     print(f"{name:<5} vs central difference: {2 * len(cases)} cases, "
-          f"max abs diff {a:.1e}, max rel diff {rel:.1e} where |value| >= 1e-3")
+          f"max abs diff below {bound(a)}, max rel diff below {bound(rel)} where |value| >= 1e-3")
 ```
 
 ```text
-put-call parity: 648 cases, max |gap| 3.6e-14
-delta vs central difference: 72 cases, max abs diff 4.6e-08, max rel diff 2.5e-07 where |value| >= 1e-3
-gamma vs central difference: 72 cases, max abs diff 3.1e-08, max rel diff 3.7e-07 where |value| >= 1e-3
-theta vs central difference: 72 cases, max abs diff 3.6e-08, max rel diff 5.5e-08 where |value| >= 1e-3
-vega  vs central difference: 72 cases, max abs diff 6.1e-10, max rel diff 1.7e-09 where |value| >= 1e-3
-rho   vs central difference: 72 cases, max abs diff 2.3e-09, max rel diff 5.5e-09 where |value| >= 1e-3
+put-call parity: 648 cases, max |gap| below 1e-13
+delta vs central difference: 72 cases, max abs diff below 1e-7, max rel diff below 1e-6 where |value| >= 1e-3
+gamma vs central difference: 72 cases, max abs diff below 1e-7, max rel diff below 1e-6 where |value| >= 1e-3
+theta vs central difference: 72 cases, max abs diff below 1e-7, max rel diff below 1e-7 where |value| >= 1e-3
+vega  vs central difference: 72 cases, max abs diff below 1e-9, max rel diff below 1e-8 where |value| >= 1e-3
+rho   vs central difference: 72 cases, max abs diff below 1e-8, max rel diff below 1e-8 where |value| >= 1e-3
 ```
 
 The differences are the truncation and rounding error of the finite
@@ -252,7 +259,8 @@ from quantflow import Portfolio
 rng = np.random.default_rng(0)
 vols = np.linspace(0.008, 0.02, 4)
 cov = (0.3 + 0.7 * np.eye(4)) * np.outer(vols, vols)
-frame = pd.DataFrame(rng.multivariate_normal(np.linspace(0.0002, 0.0009, 4), cov, 1500))
+draws = np.linspace(0.0002, 0.0009, 4) + rng.standard_normal((1500, 4)) @ np.linalg.cholesky(cov).T
+frame = pd.DataFrame(draws)
 mu, S = frame.mean().to_numpy() * 252, frame.cov().to_numpy() * 252
 one = np.ones(4)
 inv_one, inv_mu = np.linalg.solve(S, one), np.linalg.solve(S, mu)
@@ -264,7 +272,8 @@ for label, got, exact in [
     ("global minimum variance", p.min_variance(allow_short=True)["weights"], inv_one / C),
     ("target return 15%", p.optimize("target_return", 0.15, allow_short=True)["weights"], w_target),
 ]:
-    print(f"{label:<24} max |w - w_exact| {np.abs(got - exact).max():.1e}  sum {got.sum():.12f}")
+    err = np.abs(got - exact).max()
+    print(f"{label:<24} max |w - w_exact| below {bound(err)}  |sum - 1| below 1e-12: {abs(got.sum() - 1) < 1e-12}")
 
 W = np.random.default_rng(1).dirichlet(np.ones(4), 200_000)
 var = np.einsum("ij,jk,ik->i", W, S, W)
@@ -274,10 +283,10 @@ print(f"long-only min volatility SLSQP {p.min_variance()['volatility']:.6f}  bes
 ```
 
 ```text
-global minimum variance  max |w - w_exact| 6.6e-09  sum 1.000000000000
-target return 15%        max |w - w_exact| 2.7e-07  sum 1.000000000000
-long-only max Sharpe     SLSQP 0.802648  best random 0.802508
-long-only min volatility SLSQP 0.117568  best random 0.117592
+global minimum variance  max |w - w_exact| below 1e-6  |sum - 1| below 1e-12: True
+target return 15%        max |w - w_exact| below 1e-6  |sum - 1| below 1e-12: True
+long-only max Sharpe     SLSQP 0.820501  best random 0.820434
+long-only min volatility SLSQP 0.115378  best random 0.115408
 ```
 
 The tests also check the two-asset minimum-variance weight

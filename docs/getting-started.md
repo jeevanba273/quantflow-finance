@@ -32,14 +32,14 @@ put = BlackScholes(S=42, K=40, T=0.5, r=0.10, sigma=0.20, option_type="put")
 
 print(f"call {call.price():.4f}")
 print(f"put  {put.price():.4f}")
-print(f"parity gap {call.price() - put.price() - (42 - 40 * math.exp(-0.05)):.1e}")
+print(f"parity gap below 1e-12: {abs(call.price() - put.price() - (42 - 40 * math.exp(-0.05))) < 1e-12}")
 print(f"implied vol {call.implied_volatility(call.price()):.10f}")
 ```
 
 ```text
 call 4.7594
 put  0.8086
-parity gap 1.8e-15
+parity gap below 1e-12: True
 implied vol 0.2000000000
 ```
 
