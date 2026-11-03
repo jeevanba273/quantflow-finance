@@ -169,15 +169,36 @@ class RiskMetrics:
 
     def _align(self, benchmark_returns):
         """
-        Align portfolio and benchmark returns to a common length.
+        Pair portfolio and benchmark returns observation by observation.
 
-        Flattens Series/DataFrame/array benchmarks and trims both series to their
-        last ``min_length`` observations. Returns ``(portfolio, benchmark)`` as
-        numpy arrays.
+        If both series carry a DatetimeIndex they are joined on their common
+        dates. Otherwise both are trimmed to their last ``min_length``
+        observations and paired by position. Returns ``(portfolio, benchmark)``
+        as numpy arrays.
         """
-        if isinstance(benchmark_returns, (pd.Series, pd.DataFrame)):
-            benchmark_returns = benchmark_returns.values.flatten()
-        benchmark_returns = np.asarray(benchmark_returns, dtype=float)
+        if isinstance(benchmark_returns, pd.DataFrame):
+            if benchmark_returns.shape[1] != 1:
+                raise ValueError("benchmark_returns must have exactly one column")
+            benchmark_returns = benchmark_returns.iloc[:, 0]
+        if (
+            isinstance(benchmark_returns, pd.Series)
+            and isinstance(self.returns.index, pd.DatetimeIndex)
+            and isinstance(benchmark_returns.index, pd.DatetimeIndex)
+        ):
+            joined = pd.concat(
+                [self.returns, benchmark_returns], axis=1, join="inner"
+            ).dropna()
+            if len(joined) < 2:
+                raise ValueError(
+                    "Need at least 2 common dates between portfolio and benchmark"
+                )
+            return (
+                joined.iloc[:, 0].to_numpy(dtype=float),
+                joined.iloc[:, 1].to_numpy(dtype=float),
+            )
+        if isinstance(benchmark_returns, pd.Series):
+            benchmark_returns = benchmark_returns.to_numpy()
+        benchmark_returns = np.asarray(benchmark_returns, dtype=float).flatten()
 
         min_length = min(len(self.returns), len(benchmark_returns))
         if min_length < 2:

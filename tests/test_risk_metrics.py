@@ -119,3 +119,25 @@ def test_max_drawdown_hand_computed():
     # Wealth 1.1, 0.88, 0.924, 0.8316; peak 1.1 -> drawdown 0.8316 / 1.1 - 1.
     rm = RiskMetrics(pd.Series([0.10, -0.20, 0.05, -0.10] + [0.0] * 30))
     assert rm.max_drawdown() == pytest.approx(0.8316 / 1.1 - 1)
+
+
+def test_benchmark_metrics_align_on_dates():
+    idx = pd.bdate_range("2024-01-01", periods=300)
+    rng = np.random.default_rng(1)
+    bench = pd.Series(rng.normal(0, 0.01, 300), index=idx)
+    port = 1.2 * bench + rng.normal(0, 0.002, 300)
+    # The portfolio series is missing its last five days. Dates, not
+    # positions, must decide which benchmark returns are paired with it.
+    rm = RiskMetrics(port.iloc[:-5])
+    assert rm.beta(bench) == pytest.approx(rm.beta(bench.iloc[:-5]))
+    assert rm.beta(bench) == pytest.approx(1.2, abs=0.05)
+    assert rm.information_ratio(bench) == pytest.approx(
+        rm.information_ratio(bench.iloc[:-5])
+    )
+    assert rm.capm(bench)["r_squared"] > 0.9
+
+
+def test_multi_column_benchmark_rejected(sample_returns):
+    frame = pd.DataFrame({"a": sample_returns, "b": sample_returns})
+    with pytest.raises(ValueError, match="one column"):
+        RiskMetrics(sample_returns).beta(frame)
