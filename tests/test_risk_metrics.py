@@ -107,3 +107,15 @@ def test_beta_near_constant_benchmark_raises(sample_returns):
 def test_var_parametric_validates_confidence(sample_returns, cl):
     with pytest.raises(ValueError):
         RiskMetrics(sample_returns).var_parametric(cl)
+
+
+def test_max_drawdown_counts_loss_from_initial_wealth():
+    # Wealth 1.0 -> 0.9 -> 0.945: the fall from the starting value is -10%.
+    rm = RiskMetrics(pd.Series([-0.10, 0.05] + [0.0] * 30))
+    assert rm.max_drawdown() == pytest.approx(-0.10)
+
+
+def test_max_drawdown_hand_computed():
+    # Wealth 1.1, 0.88, 0.924, 0.8316; peak 1.1 -> drawdown 0.8316 / 1.1 - 1.
+    rm = RiskMetrics(pd.Series([0.10, -0.20, 0.05, -0.10] + [0.0] * 30))
+    assert rm.max_drawdown() == pytest.approx(0.8316 / 1.1 - 1)

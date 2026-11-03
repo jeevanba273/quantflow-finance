@@ -143,11 +143,11 @@ class RiskMetrics:
                 "No return data available for maximum drawdown calculation"
             )
 
-        # Convert returns to cumulative wealth
-        cumulative = (1 + self.returns).cumprod()
-        rolling_max = cumulative.expanding().max()
-        drawdown = (cumulative - rolling_max) / rolling_max
-        return drawdown.min()
+        # Wealth index starting from 1.0; the starting value counts as a peak,
+        # so a loss in the first period is a drawdown.
+        wealth = (1 + self.returns).cumprod().to_numpy()
+        peak = np.maximum.accumulate(np.concatenate(([1.0], wealth)))[1:]
+        return float(np.min(wealth / peak - 1.0))
 
     def volatility(self, annualized=True):
         """
