@@ -350,8 +350,10 @@ class BlackScholes:
         Raises
         ------
         ValueError
-            If ``market_price`` is not a positive finite number, violates the
-            no-arbitrage bounds, or the solver cannot bracket/converge.
+            If ``market_price`` is not a positive finite number, lies outside
+            the no-arbitrage bounds, has no time value above the lower bound
+            (the volatility is then not determined), or the solver cannot
+            bracket or converge.
         """
         if not np.isfinite(market_price) or market_price <= 0:
             raise ValueError("market_price must be a positive, finite number")
@@ -365,10 +367,24 @@ class BlackScholes:
             lower = max(self.K * disc_r - self.S * disc_q, 0.0)
             upper = self.K * disc_r
 
-        if market_price < lower - tolerance or market_price > upper - tolerance:
+        if market_price >= upper:
             raise ValueError(
-                f"market_price {market_price:.6f} violates the no-arbitrage bounds "
-                f"[{lower:.6f}, {upper:.6f}] for this option"
+                f"market_price {market_price:.6f} is at or above the no-arbitrage "
+                f"upper bound {upper:.6f}; no volatility reproduces it"
+            )
+        # Prices are computed to about 1e-13 of the larger discounted leg, so a
+        # time value smaller than that cannot identify a volatility.
+        noise = 1e-13 * max(self.S * disc_q, self.K * disc_r) if lower > 0 else 0.0
+        time_value = market_price - lower
+        if time_value < -noise:
+            raise ValueError(
+                f"market_price {market_price:.6f} is below the no-arbitrage lower "
+                f"bound {lower:.6f}; no volatility reproduces it"
+            )
+        if time_value <= noise:
+            raise ValueError(
+                f"market_price {market_price:.6f} has no time value above the "
+                f"lower bound {lower:.6f}; the implied volatility is not determined"
             )
 
         def price_gap(sigma):

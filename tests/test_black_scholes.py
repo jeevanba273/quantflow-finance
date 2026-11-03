@@ -153,3 +153,25 @@ def test_text_output_is_ascii():
     ):
         assert obj.summary().isascii()
         assert repr(obj).isascii()
+
+
+def test_iv_rejects_price_without_time_value():
+    # Deep in-the-money one-day call: in double precision the model price
+    # equals the lower bound for any volatility up to well above 20%, so no
+    # unique implied volatility exists. It used to return 1e-6 silently.
+    opt = BlackScholes(100, 50, 1 / 365, 0.03, 0.2, "call")
+    with pytest.raises(ValueError, match="time value"):
+        opt.implied_volatility(opt.price())
+
+
+def test_iv_rejects_price_below_lower_bound():
+    opt = BlackScholes(100, 90, 1, 0.05, 0.2, "call")
+    intrinsic = 100 - 90 * math.exp(-0.05)
+    with pytest.raises(ValueError, match="lower bound"):
+        opt.implied_volatility(intrinsic - 0.5)
+
+
+def test_iv_rejects_price_at_upper_bound():
+    opt = BlackScholes(100, 90, 1, 0.05, 0.2, "put")
+    with pytest.raises(ValueError, match="upper bound"):
+        opt.implied_volatility(90 * math.exp(-0.05))
