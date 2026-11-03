@@ -7,11 +7,14 @@ Downloading needs the optional ``yfinance`` dependency
 method is called, so the rest of the package never depends on it.
 """
 
+import logging
 import random
 import time
 
 import numpy as np
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def _yfinance():
@@ -63,14 +66,14 @@ class MarketData:
 
         for attempt in range(max_tries):
             try:
-                print(
-                    f"Fetching data for {tickers} (attempt {attempt + 1}/{max_tries})"
+                logger.info(
+                    "Fetching %s (attempt %d/%d)", tickers, attempt + 1, max_tries
                 )
 
                 # Add random delay to avoid rate limiting
                 if attempt > 0:
                     delay = random.uniform(*delay_range)
-                    print(f"Waiting {delay:.1f} seconds before retry...")
+                    logger.info("Waiting %.1f seconds before retrying", delay)
                     time.sleep(delay)
 
                 # Let yfinance handle sessions automatically (no custom session)
@@ -116,12 +119,12 @@ class MarketData:
                 if result.empty or result.isna().all().all():
                     raise ValueError(f"All data is empty or NaN for tickers: {tickers}")
 
-                print(f"Successfully fetched {len(result)} rows of data")
+                logger.info("Fetched %d rows", len(result))
                 return result
 
             except Exception as e:
                 last_exception = e
-                print(f"Attempt {attempt + 1} failed: {str(e)}")
+                logger.warning("Attempt %d failed: %s", attempt + 1, e)
 
                 # If it's a rate limit error, wait longer before next attempt
                 if (
@@ -130,13 +133,13 @@ class MarketData:
                 ):
                     if attempt < max_tries - 1:  # Don't wait on the last attempt
                         longer_delay = random.uniform(10, 20)
-                        print(
-                            f"Rate limit detected. Waiting {longer_delay:.1f} seconds..."
+                        logger.warning(
+                            "Rate limited; waiting %.1f seconds", longer_delay
                         )
                         time.sleep(longer_delay)
 
         # If all attempts failed
-        raise Exception(
+        raise RuntimeError(
             f"Failed to fetch data after {max_tries} attempts. Last error: {last_exception}"
         )
 
@@ -161,7 +164,7 @@ class MarketData:
 
         for i, ticker in enumerate(tickers):
             try:
-                print(f"Fetching {ticker} ({i + 1}/{len(tickers)})")
+                logger.info("Fetching %s (%d/%d)", ticker, i + 1, len(tickers))
 
                 # Add delay between requests
                 if i > 0:
@@ -177,20 +180,20 @@ class MarketData:
                     elif "Close" in stock_data.columns:
                         all_data[ticker] = stock_data["Close"]
                     else:
-                        print(f"Warning: No price data for {ticker}")
+                        logger.warning("No price column for %s", ticker)
                 else:
-                    print(f"Warning: No data for {ticker}")
+                    logger.warning("No data for %s", ticker)
 
             except Exception as e:
-                print(f"Failed to fetch {ticker}: {str(e)}")
+                logger.warning("Failed to fetch %s: %s", ticker, e)
                 continue
 
         if not all_data:
-            raise Exception("Failed to fetch data for any ticker")
+            raise RuntimeError("Failed to fetch data for any ticker")
 
         # Combine all data into single DataFrame
         result = pd.DataFrame(all_data)
-        print(f"Successfully fetched data for {len(result.columns)} stocks")
+        logger.info("Fetched data for %d tickers", len(result.columns))
         return result
 
     @staticmethod

@@ -51,8 +51,16 @@ def test_calculate_returns_interior_nan_consistent():
 
 
 def test_fetch_empty_raises(mock_yfinance_empty):
-    with pytest.raises(Exception, match="Failed to fetch"):
+    with pytest.raises(RuntimeError, match="Failed to fetch"):
         MarketData.fetch_stock_data("FAKE", period="1mo", max_tries=1)
+
+
+def test_fetch_logs_instead_of_printing(mock_yfinance, capsys, caplog):
+    with caplog.at_level("INFO", logger="quantflow.data.fetcher"):
+        MarketData.fetch_stock_data("AAPL")
+        MarketData.fetch_single_stock_batch(["AAPL", "MSFT"], batch_delay=0)
+    assert capsys.readouterr().out == ""
+    assert "Fetched" in caplog.text
 
 
 def test_core_import_does_not_load_yfinance():

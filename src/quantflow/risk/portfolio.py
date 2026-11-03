@@ -8,6 +8,8 @@ and the efficient frontier) using ``scipy.optimize`` only. Bridges to
 for an optimized portfolio.
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 from scipy.optimize import OptimizeResult, minimize
@@ -72,9 +74,10 @@ class Portfolio:
             self.weights = self._validate_weights(weights)
 
         if len(self.returns) < self.n_assets:
-            print(
-                f"Warning: only {len(self.returns)} observations for "
-                f"{self.n_assets} assets; covariance may be unstable"
+            warnings.warn(
+                f"Only {len(self.returns)} observations for {self.n_assets} "
+                "assets; the covariance matrix may be unstable",
+                stacklevel=2,
             )
 
     @property
@@ -139,7 +142,11 @@ class Portfolio:
     def _result(self, res, risk_free_rate=0.02):
         w = res.x
         if not res.success:
-            print(f"Warning: optimizer did not converge: {res.message}")
+            warnings.warn(
+                f"Optimizer did not converge: {res.message}",
+                RuntimeWarning,
+                stacklevel=3,
+            )
         return {
             "weights": w,
             "weights_by_asset": {

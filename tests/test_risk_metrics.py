@@ -149,3 +149,9 @@ def test_multi_column_returns_rejected():
     frame = pd.DataFrame({"a": [0.01, -0.02, 0.005] * 20, "b": [0.03, -0.01, 0.0] * 20})
     with pytest.raises(ValueError, match="one column"):
         RiskMetrics(frame)
+
+
+def test_short_series_warns_instead_of_printing(capsys):
+    with pytest.warns(UserWarning, match="observations"):
+        RiskMetrics(pd.Series([0.01, -0.02, 0.005]))
+    assert capsys.readouterr().out == ""

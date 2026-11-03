@@ -110,3 +110,10 @@ def test_optimize_dispatch(sample_multi_returns):
     assert p.optimize("min_variance")["success"]
     with pytest.raises(ValueError):
         p.optimize("nonsense")
+
+
+def test_few_observations_warns_instead_of_printing(capsys):
+    data = pd.DataFrame(np.random.default_rng(0).normal(0, 0.01, (3, 4)))
+    with pytest.warns(UserWarning, match="covariance"):
+        Portfolio(data)
+    assert capsys.readouterr().out == ""

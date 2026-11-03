@@ -5,6 +5,8 @@ This module provides implementations of common risk measures including
 Value at Risk (VaR), Expected Shortfall, and performance ratios.
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -50,8 +52,10 @@ class RiskMetrics:
 
         # Warn if we have very little data
         if len(self.returns) < 30:
-            print(
-                f"Warning: Only {len(self.returns)} data points available. Risk metrics may be unreliable."
+            warnings.warn(
+                f"Only {len(self.returns)} observations; risk metrics may be "
+                "unreliable",
+                stacklevel=2,
             )
 
     def var_historical(self, confidence_level=0.05):
@@ -372,8 +376,9 @@ class RiskMetrics:
         if not (0 < confidence_level < 1):
             raise ValueError("Confidence level must be between 0 and 1")
         if len(self.returns) < 50:
-            print(
-                "Warning: Cornish-Fisher VaR is unreliable with fewer than 50 observations"
+            warnings.warn(
+                "Cornish-Fisher VaR is unreliable with fewer than 50 observations",
+                stacklevel=2,
             )
 
         mu = self.returns.mean()
