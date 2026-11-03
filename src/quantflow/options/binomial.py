@@ -106,6 +106,9 @@ class BinomialTree(OptionPricer):
         values = self._intrinsic(S_T)
 
         nodes = {"u": u, "d": d, "dt": dt}
+        # With one or two steps the terminal layer is itself layer 1 or 2.
+        if N <= 2:
+            nodes[f"step{N}"] = values.copy()
         for i in range(N - 1, -1, -1):
             values = disc * (p * values[:-1] + (1.0 - p) * values[1:])
             if self.exercise == "american":
@@ -128,31 +131,29 @@ class BinomialTree(OptionPricer):
     def delta(self) -> float:
         """Delta read from the first lattice layer (finite difference)."""
         price, n = self._lattice()
-        if "step1" not in n:
-            return self._bump_spot_delta()
         v_u, v_d = n["step1"]
         s_u, s_d = self.S * n["u"], self.S * n["d"]
-        return (v_u - v_d) / (s_u - s_d)
+        return float((v_u - v_d) / (s_u - s_d))
 
     def gamma(self) -> float:
         """Gamma read from the second lattice layer (finite difference)."""
         price, n = self._lattice()
         if "step2" not in n:
-            return self._bump_spot_gamma()
+            raise ValueError("Lattice gamma needs steps >= 2")
         v_uu, v_ud, v_dd = n["step2"]
         u, d = n["u"], n["d"]
         s_uu, s_ud, s_dd = self.S * u * u, self.S * u * d, self.S * d * d
         delta_up = (v_uu - v_ud) / (s_uu - s_ud)
         delta_dn = (v_ud - v_dd) / (s_ud - s_dd)
-        return (delta_up - delta_dn) / (0.5 * (s_uu - s_dd))
+        return float((delta_up - delta_dn) / (0.5 * (s_uu - s_dd)))
 
     def theta(self) -> float:
         """Theta (per year) from the lattice: (V_ud - V0) / (2·dt)."""
         price, n = self._lattice()
         if "step2" not in n:
-            return float("nan")
+            raise ValueError("Lattice theta needs steps >= 2")
         v_ud = n["step2"][1]
-        return (v_ud - price) / (2.0 * n["dt"])
+        return float((v_ud - price) / (2.0 * n["dt"]))
 
     def vega(self, d_sigma: float = 1e-4) -> float:
         """Vega via central-difference bump-and-reprice, scaled per 1% vol."""
@@ -198,57 +199,6 @@ class BinomialTree(OptionPricer):
         )
         params.update(overrides)
         return BinomialTree(**params).price()
-
-    def _bump_spot_delta(self, h: float = 1e-4) -> float:
-        up = BinomialTree(
-            self.S + h,
-            self.K,
-            self.T,
-            self.r,
-            self.sigma,
-            self.option_type,
-            self.exercise,
-            self.steps,
-            self.q,
-        ).price()
-        dn = BinomialTree(
-            self.S - h,
-            self.K,
-            self.T,
-            self.r,
-            self.sigma,
-            self.option_type,
-            self.exercise,
-            self.steps,
-            self.q,
-        ).price()
-        return (up - dn) / (2.0 * h)
-
-    def _bump_spot_gamma(self, h: float = 1e-2) -> float:
-        up = BinomialTree(
-            self.S + h,
-            self.K,
-            self.T,
-            self.r,
-            self.sigma,
-            self.option_type,
-            self.exercise,
-            self.steps,
-            self.q,
-        ).price()
-        mid = self.price()
-        dn = BinomialTree(
-            self.S - h,
-            self.K,
-            self.T,
-            self.r,
-            self.sigma,
-            self.option_type,
-            self.exercise,
-            self.steps,
-            self.q,
-        ).price()
-        return (up - 2.0 * mid + dn) / (h * h)
 
     def __repr__(self) -> str:
         return (
