@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-11-04
+
+Documentation-only release. The library code is unchanged from 0.3.0.
+
+### Changed
+- README: the centred header with the full project name, the badge row and
+  the built-with row is back, and the text names the project in full.
+- The documentation and the benchmark table labels call the project
+  QuantFlow Finance; `quantflow` remains the import name and
+  `quantflow-finance` the package name. The benchmark results shown were
+  measured with 0.3.0, whose code is identical.
+
 ## [0.3.0] - 2026-11-03
 
 ### Fixed
@@ -177,6 +189,7 @@ All changes are additive and backward-compatible. Existing `BlackScholes`,
 - Initial release: Black-Scholes pricing with Greeks, core risk metrics, and
   Yahoo Finance market data integration.
 
+[0.3.1]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/jeevanba273/quantflow-finance/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/jeevanba273/quantflow-finance/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jeevanba273/quantflow-finance/compare/v0.1.10...v0.2.0
