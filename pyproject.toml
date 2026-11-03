@@ -49,6 +49,8 @@ dependencies = [
 
 [project.optional-dependencies]
 data = ["yfinance>=0.2.55"]
+# Reference libraries for the optional cross-check tests and benchmarks.
+validation = ["QuantLib", "vollib"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
