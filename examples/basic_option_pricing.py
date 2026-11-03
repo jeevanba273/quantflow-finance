@@ -5,8 +5,8 @@ This example shows how to use the QuantFlow package to price options
 and calculate risk metrics (Greeks).
 """
 
-import sys
 import os
+import sys
 
 # Add the src folder to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../src"))
@@ -41,10 +41,10 @@ def main():
     price = aapl_call.price()
     delta = aapl_call.delta()
 
-    print(f"\nResults:")
+    print("\nResults:")
     print(f"Option Price: ${price:.2f}")
     print(f"Delta: {delta:.3f}")
-    print(f"\nInterpretation:")
+    print("\nInterpretation:")
     print(f"• For every $1 increase in AAPL stock, this option gains ~${delta:.2f}")
     print(f"• This option is worth ${price:.2f} according to Black-Scholes model")
 

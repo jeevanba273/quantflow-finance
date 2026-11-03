@@ -142,7 +142,9 @@ class Portfolio:
             print(f"Warning: optimizer did not converge: {res.message}")
         return {
             "weights": w,
-            "weights_by_asset": {a: float(wi) for a, wi in zip(self.assets, w)},
+            "weights_by_asset": {
+                a: float(wi) for a, wi in zip(self.assets, w, strict=True)
+            },
             "return": self._ret(w),
             "volatility": self._vol(w),
             "sharpe": self._sharpe(w, risk_free_rate),
@@ -233,7 +235,9 @@ class Portfolio:
                 "volatility": self._vol(w),
                 "sharpe": self._sharpe(w, 0.02),
             }
-            row.update({f"w_{a}": float(wi) for a, wi in zip(self.assets, w)})
+            row.update(
+                {f"w_{a}": float(wi) for a, wi in zip(self.assets, w, strict=True)}
+            )
             rows.append(row)
 
         return pd.DataFrame(rows)

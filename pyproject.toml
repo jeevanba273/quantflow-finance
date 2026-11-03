@@ -53,8 +53,7 @@ dependencies = [
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
-    "black>=23.0",
-    "flake8>=6.0",
+    "ruff>=0.6",
     "build>=1.0",
     "twine>=4.0",
 ]
@@ -94,6 +93,12 @@ markers = [
 branch = true
 source = ["quantflow"]
 
-[tool.black]
+[tool.ruff]
 line-length = 88
-target-version = ["py310"]
+target-version = "py310"
+extend-exclude = ["docs/_build", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "NPY"]
+# Line length is enforced by the formatter; long string literals are allowed.
+ignore = ["E501"]

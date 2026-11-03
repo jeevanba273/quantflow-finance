@@ -48,7 +48,7 @@ def test_calculate_returns_interior_nan_consistent():
 
 
 def test_fetch_empty_raises(mock_yfinance_empty):
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="Failed to fetch"):
         MarketData.fetch_stock_data("FAKE", period="1mo", max_tries=1)
 
 

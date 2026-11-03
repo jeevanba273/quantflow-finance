@@ -6,11 +6,12 @@ This module provides a comprehensive implementation of the Black-Scholes-Merton 
 for European option pricing, including all Greeks calculations (Delta, Gamma, Theta, Vega, Rho).
 """
 
-import numpy as np
-from scipy.stats import norm
-from scipy.optimize import brentq
-from typing import Dict, Literal
 import warnings
+from typing import Literal
+
+import numpy as np
+from scipy.optimize import brentq
+from scipy.stats import norm
 
 
 class BlackScholes:
@@ -106,14 +107,22 @@ class BlackScholes:
         # Warn for extreme parameters
         if self.T > 5:
             warnings.warn(
-                "Time to expiration > 5 years may produce unrealistic results"
+                "Time to expiration > 5 years may produce unrealistic results",
+                stacklevel=2,
             )
         if self.sigma > 2:
-            warnings.warn("Volatility > 200% may produce unrealistic results")
+            warnings.warn(
+                "Volatility > 200% may produce unrealistic results", stacklevel=2
+            )
         if self.q > 1:
-            warnings.warn("Dividend yield (q) > 100% may produce unrealistic results")
+            warnings.warn(
+                "Dividend yield (q) > 100% may produce unrealistic results",
+                stacklevel=2,
+            )
         elif self.q < 0:
-            warnings.warn("Negative dividend yield (q) is unusual but allowed")
+            warnings.warn(
+                "Negative dividend yield (q) is unusual but allowed", stacklevel=2
+            )
 
     def _d1(self) -> float:
         """Calculate d1 parameter for Black-Scholes(-Merton) formula."""
@@ -288,7 +297,7 @@ class BlackScholes:
         else:
             return -(self.K * self.T * np.exp(-self.r * self.T) * norm.cdf(-d2)) / 100
 
-    def greeks(self) -> Dict[str, float]:
+    def greeks(self) -> dict[str, float]:
         """
         Calculate all Greeks at once.
 
@@ -403,7 +412,7 @@ class BlackScholes:
                 )
             )
         except (ValueError, RuntimeError) as exc:
-            raise ValueError(f"Implied volatility solver failed: {exc}")
+            raise ValueError(f"Implied volatility solver failed: {exc}") from exc
 
     def __repr__(self) -> str:
         """String representation of the Black-Scholes option."""
@@ -427,7 +436,7 @@ class BlackScholes:
 
         summary = f"""
 Black-Scholes {self.option_type.capitalize()} Option Summary
-{'='*50}
+{"=" * 50}
 Parameters:
   Spot Price (S):     ${self.S:>8.2f}
   Strike Price (K):   ${self.K:>8.2f}
@@ -440,10 +449,10 @@ Valuation:
   Option Price:       ${price:>8.2f}
 
 Greeks:
-  Delta (Δ):          {greeks['delta']:>8.4f}
-  Gamma (Γ):          {greeks['gamma']:>8.4f}
-  Theta (Θ):          ${greeks['theta']:>8.2f} /year
-  Vega (ν):           ${greeks['vega']:>8.2f} /1% vol
-  Rho (ρ):            ${greeks['rho']:>8.2f} /1% rate
+  Delta (Δ):          {greeks["delta"]:>8.4f}
+  Gamma (Γ):          {greeks["gamma"]:>8.4f}
+  Theta (Θ):          ${greeks["theta"]:>8.2f} /year
+  Vega (ν):           ${greeks["vega"]:>8.2f} /1% vol
+  Rho (ρ):            ${greeks["rho"]:>8.2f} /1% rate
         """
         return summary.strip()

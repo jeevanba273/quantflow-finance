@@ -7,17 +7,17 @@ This example demonstrates the full power of QuantFlow by:
 3. Pricing options on the portfolio
 """
 
-import sys
 import os
+import sys
 
 # Add the src folder to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../src"))
 
-from quantflow.data.fetcher import MarketData
-from quantflow.risk.metrics import RiskMetrics
-from quantflow.options.black_scholes import BlackScholes
-import pandas as pd
 import numpy as np
+
+from quantflow.data.fetcher import MarketData
+from quantflow.options.black_scholes import BlackScholes
+from quantflow.risk.metrics import RiskMetrics
 
 
 def main():
@@ -45,10 +45,10 @@ def main():
     portfolio_returns = (returns * portfolio_weights).sum(axis=1)
 
     print(
-        f"Portfolio daily return: {portfolio_returns.mean():.4f} ({portfolio_returns.mean()*100:.2f}%)"
+        f"Portfolio daily return: {portfolio_returns.mean():.4f} ({portfolio_returns.mean() * 100:.2f}%)"
     )
     print(
-        f"Portfolio daily volatility: {portfolio_returns.std():.4f} ({portfolio_returns.std()*100:.2f}%)"
+        f"Portfolio daily volatility: {portfolio_returns.std():.4f} ({portfolio_returns.std() * 100:.2f}%)"
     )
 
     # Step 3: Risk Analysis
@@ -60,10 +60,10 @@ def main():
     sharpe = risk_metrics.sharpe_ratio()
     max_dd = risk_metrics.max_drawdown()
 
-    print(f"5% Value at Risk: {var_5:.4f} ({var_5*100:.2f}%)")
-    print(f"5% Expected Shortfall: {es_5:.4f} ({es_5*100:.2f}%)")
+    print(f"5% Value at Risk: {var_5:.4f} ({var_5 * 100:.2f}%)")
+    print(f"5% Expected Shortfall: {es_5:.4f} ({es_5 * 100:.2f}%)")
     print(f"Sharpe Ratio: {sharpe:.3f}")
-    print(f"Maximum Drawdown: {max_dd:.4f} ({max_dd*100:.2f}%)")
+    print(f"Maximum Drawdown: {max_dd:.4f} ({max_dd * 100:.2f}%)")
 
     # Step 4: Options Analysis
     print("\nStep 4: Options Analysis")
@@ -77,19 +77,25 @@ def main():
     # Price call options at different strikes
     strikes = [current_price * 0.95, current_price, current_price * 1.05]
 
-    print(f"\nOption Prices (3-month expiry, 5% risk-free rate):")
+    print("\nOption Prices (3-month expiry, 5% risk-free rate):")
     print("-" * 50)
 
     for strike in strikes:
         option = BlackScholes(
-            S=current_price, K=strike, T=0.25, r=0.05, sigma=annual_vol  # 3 months
+            S=current_price,
+            K=strike,
+            T=0.25,
+            r=0.05,
+            sigma=annual_vol,  # 3 months
         )
 
         greeks = option.greeks()
         moneyness = (
             "ITM"
             if strike < current_price
-            else "ATM" if abs(strike - current_price) < 1 else "OTM"
+            else "ATM"
+            if abs(strike - current_price) < 1
+            else "OTM"
         )
 
         print(f"Strike ${strike:.0f} ({moneyness}):")

@@ -11,8 +11,8 @@ backward compatibility. New pricers such as :class:`~quantflow.options.binomial.
 subclass ``OptionPricer``.
 """
 
-from abc import ABC, abstractmethod
 import warnings
+from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -77,14 +77,22 @@ class OptionPricer(ABC):
 
         if self.T > 5:
             warnings.warn(
-                "Time to expiration > 5 years may produce unrealistic results"
+                "Time to expiration > 5 years may produce unrealistic results",
+                stacklevel=2,
             )
         if self.sigma > 2:
-            warnings.warn("Volatility > 200% may produce unrealistic results")
+            warnings.warn(
+                "Volatility > 200% may produce unrealistic results", stacklevel=2
+            )
         if self.q > 1:
-            warnings.warn("Dividend yield (q) > 100% may produce unrealistic results")
+            warnings.warn(
+                "Dividend yield (q) > 100% may produce unrealistic results",
+                stacklevel=2,
+            )
         elif self.q < 0:
-            warnings.warn("Negative dividend yield (q) is unusual but allowed")
+            warnings.warn(
+                "Negative dividend yield (q) is unusual but allowed", stacklevel=2
+            )
 
     @abstractmethod
     def price(self) -> float:

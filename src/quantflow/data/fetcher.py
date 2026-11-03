@@ -4,12 +4,12 @@ Market data fetching and preprocessing utilities.
 This module provides tools for downloading stock data and calculating returns.
 """
 
-import yfinance as yf
-import pandas as pd
-import numpy as np
-import time
 import random
-from typing import Union, List
+import time
+
+import numpy as np
+import pandas as pd
+import yfinance as yf
 
 
 class MarketData:
@@ -19,7 +19,7 @@ class MarketData:
 
     @staticmethod
     def fetch_stock_data(
-        tickers: Union[str, List[str]],
+        tickers: str | list[str],
         period="1y",
         interval="1d",
         max_tries=3,
@@ -127,7 +127,7 @@ class MarketData:
 
     @staticmethod
     def fetch_single_stock_batch(
-        tickers: List[str], period="1y", interval="1d", batch_delay=2
+        tickers: list[str], period="1y", interval="1d", batch_delay=2
     ):
         """
         Fetch multiple stocks one by one to avoid rate limiting.
@@ -145,7 +145,7 @@ class MarketData:
 
         for i, ticker in enumerate(tickers):
             try:
-                print(f"Fetching {ticker} ({i+1}/{len(tickers)})")
+                print(f"Fetching {ticker} ({i + 1}/{len(tickers)})")
 
                 # Add delay between requests
                 if i > 0:

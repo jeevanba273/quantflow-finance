@@ -9,10 +9,10 @@ __author__ = "JEEVAN B A"
 __email__ = "jeevanba273@gmail.com"
 
 # Import main classes for easy access
-from .options.black_scholes import BlackScholes
+from .data.fetcher import MarketData
 from .options.binomial import BinomialTree
+from .options.black_scholes import BlackScholes
 from .risk.metrics import RiskMetrics
 from .risk.portfolio import Portfolio
-from .data.fetcher import MarketData
 
 __all__ = ["BlackScholes", "BinomialTree", "RiskMetrics", "Portfolio", "MarketData"]

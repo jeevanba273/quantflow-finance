@@ -7,8 +7,8 @@ as ``steps`` increases; American options are priced with an early-exercise check
 at every node.
 """
 
-from typing import Dict, Literal
 import warnings
+from typing import Literal
 
 import numpy as np
 
@@ -76,7 +76,7 @@ class BinomialTree(OptionPricer):
         self.steps = int(steps)
         self.exercise = exercise.lower()
         if self.steps > 5000:
-            warnings.warn("steps > 5000 may be slow or memory-intensive")
+            warnings.warn("steps > 5000 may be slow or memory-intensive", stacklevel=2)
 
     def _lattice(self):
         """
@@ -96,7 +96,8 @@ class BinomialTree(OptionPricer):
         if not (0.0 <= p <= 1.0):
             warnings.warn(
                 "Risk-neutral probability p outside [0, 1]; increase steps or "
-                "check inputs (results may be unreliable)"
+                "check inputs (results may be unreliable)",
+                stacklevel=2,
             )
 
         # Terminal underlying prices and payoffs (j = number of down-moves).
@@ -165,7 +166,7 @@ class BinomialTree(OptionPricer):
         dn = self._reprice(r=self.r - d_r)
         return (up - dn) / (2.0 * d_r) / 100.0
 
-    def greeks(self) -> Dict[str, float]:
+    def greeks(self) -> dict[str, float]:
         """Return price and all Greeks in a single dict."""
         return {
             "price": self.price(),
