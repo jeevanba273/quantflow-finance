@@ -1,0 +1,8 @@
+# Files for the source distribution only; package metadata is in pyproject.toml.
+include CHANGELOG.md CITATION.cff CONTRIBUTING.md
+graft tests
+graft examples
+graft benchmarks
+graft docs
+prune docs/_build
+global-exclude __pycache__ *.py[cod]
