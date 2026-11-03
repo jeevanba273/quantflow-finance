@@ -60,10 +60,14 @@ def _prepare(S, K, T, r, sigma, q, option_type):
     kinds = np.asarray(option_type)
     if kinds.dtype.kind not in "UO":
         raise ValueError("option_type must be 'call' or 'put'")
-    kinds = np.char.lower(kinds.astype(str))
-    if not np.all(np.isin(kinds, ("call", "put"))):
-        raise ValueError("option_type must be 'call' or 'put'")
+    # Exact lower-case labels are the common case; lower-casing a large
+    # string array costs more than the pricing itself, so only do it if needed.
     is_call = kinds == "call"
+    if not np.all(is_call | (kinds == "put")):
+        kinds = np.char.lower(kinds.astype(str))
+        is_call = kinds == "call"
+        if not np.all(is_call | (kinds == "put")):
+            raise ValueError("option_type must be 'call' or 'put'")
 
     return np.broadcast_arrays(S, K, T, r, sigma, q, is_call)
 
