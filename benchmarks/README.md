@@ -1,6 +1,6 @@
 # Benchmarks
 
-`run_benchmarks.py` measures the accuracy of quantflow's prices, Greeks and
+`run_benchmarks.py` measures the accuracy of QuantFlow Finance's prices, Greeks and
 implied volatilities against QuantLib and vollib, its speed against those
 libraries and a plain NumPy/SciPy Black-Scholes, Monte Carlo standard errors
 against the number of paths, and American-option trees against a QuantLib

@@ -65,7 +65,7 @@ error, since no volatility is determined. The achievable accuracy is about
 the price rounding error divided by vega, so it degrades for very short
 expiries and far from the money. Jaeckel's "Let's Be Rational" (2015), used
 by vollib, is designed to converge in two iterations; on the benchmark grid
-its median volatility error is smaller than quantflow's (see
+its median volatility error is smaller than QuantFlow Finance's (see
 {doc}`validation`).
 
 ## Cox-Ross-Rubinstein tree

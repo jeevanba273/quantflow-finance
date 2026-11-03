@@ -1,6 +1,6 @@
-# quantflow
+# QuantFlow Finance
 
-quantflow is a small Python library for European and American option
+QuantFlow Finance is a small Python library for European and American option
 pricing (Black-Scholes-Merton, Cox-Ross-Rubinstein trees, Monte Carlo),
 risk statistics of return series and mean-variance portfolio optimisation.
 It is built on NumPy, SciPy and pandas and is meant for research, teaching and

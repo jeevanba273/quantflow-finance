@@ -2,7 +2,7 @@
 
 ## Install
 
-quantflow needs Python 3.10 or newer. The distribution is called
+QuantFlow Finance needs Python 3.10 or newer. The distribution is called
 `quantflow-finance`; the import name is `quantflow`.
 
 ```bash

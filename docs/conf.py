@@ -3,7 +3,7 @@
 import importlib.metadata
 
 # -- Project information -----------------------------------------------------
-project = "quantflow"
+project = "QuantFlow Finance"
 author = "Jeevan B A"
 copyright = "2026, Jeevan B A"
 

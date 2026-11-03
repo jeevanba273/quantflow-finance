@@ -65,7 +65,7 @@ Be Rational") and QuantLib on 5,186 options; the largest volatility error was
 $3.4 \times 10^{-11}$, against $1.7 \times 10^{-11}$ for vollib and
 $1.9 \times 10^{-11}$ for QuantLib. Brent's method needs more price
 evaluations than Let's Be Rational, which is designed to converge in two
-iterations; the {doc}`../benchmarks` page shows quantflow's solver is slower
+iterations; the {doc}`../benchmarks` page shows QuantFlow Finance's solver is slower
 than both libraries.
 
 There is no vectorised implied-volatility function; solve options one at a

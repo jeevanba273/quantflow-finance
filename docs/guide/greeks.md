@@ -14,8 +14,8 @@ theta, vega and rho from their closed forms.
 | vega | change for +1 volatility point | multiply by 100 |
 | rho | change for +1 rate point | multiply by 100 |
 
-QuantLib and most textbooks quote vega and rho per unit (multiply quantflow's
-values by 100 to compare); vollib quotes them per point, like quantflow, and
+QuantLib and most textbooks quote vega and rho per unit (multiply QuantFlow Finance's
+values by 100 to compare); vollib quotes them per point, like QuantFlow Finance, and
 quotes theta per day.
 
 ```python

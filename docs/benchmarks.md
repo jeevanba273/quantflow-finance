@@ -1,6 +1,6 @@
 # Benchmarks
 
-Accuracy and speed of quantflow against QuantLib, vollib and a plain
+Accuracy and speed of QuantFlow Finance against QuantLib, vollib and a plain
 NumPy/SciPy Black-Scholes, all on the same machine and the same inputs. To
 reproduce:
 
@@ -40,7 +40,7 @@ background load, so compare rows within one run.
 | RAM | 31.5 GB |
 | OS | Windows-11-10.0.26300-SP0 |
 | Python | 3.13.5 |
-| quantflow | 0.3.0 |
+| quantflow-finance | 0.3.0 |
 | numpy | 2.5.4 |
 | scipy | 1.18.1 |
 | QuantLib | 1.44 |
@@ -67,7 +67,7 @@ Grid: 6048 European options (S in 80-120, K in 70-130, expiry 7-730 days, r 0-6%
 
 | Solver | Max abs vol error | Median abs vol error | Failures |
 |---|---|---|---|
-| quantflow (Brent, tol 1e-10) | 3.4e-11 | 7.2e-14 | 0 |
+| QuantFlow Finance (Brent, tol 1e-10) | 3.4e-11 | 7.2e-14 | 0 |
 | vollib (Let's Be Rational) | 1.7e-11 | 3.3e-16 | 0 |
 | QuantLib impliedVolatility (accuracy 1e-12) | 1.9e-11 | 1.6e-15 | 0 |
 
@@ -77,11 +77,11 @@ Inputs drawn uniformly (S 80-120, K 70-130, T 7-730 days, r 0-6%, q 0-2%, sigma 
 
 | Task | Implementation | Options per second (median) | IQR | Note |
 |---|---|---|---|---|
-| Price, vectorised | quantflow black_scholes_price | 5,691,834 | 5,637,157 - 5,721,629 | includes input validation |
+| Price, vectorised | QuantFlow Finance black_scholes_price | 5,691,834 | 5,637,157 - 5,721,629 | includes input validation |
 | Price, vectorised | plain NumPy/SciPy (ndtr) | 9,059,514 | 8,946,849 - 9,140,442 | same formula, no validation |
-| Price + 5 Greeks, vectorised | quantflow black_scholes_greeks | 2,813,832 | 2,799,138 - 2,930,661 |  |
-| Price, scalar loop | quantflow BlackScholes(...).price() | 90,568 | 89,604 - 91,769 | object per option |
-| Price + 5 Greeks, scalar loop | quantflow BlackScholes(...).greeks() | 57,468 | 56,993 - 58,254 |  |
+| Price + 5 Greeks, vectorised | QuantFlow Finance black_scholes_greeks | 2,813,832 | 2,799,138 - 2,930,661 |  |
+| Price, scalar loop | QuantFlow Finance BlackScholes(...).price() | 90,568 | 89,604 - 91,769 | object per option |
+| Price + 5 Greeks, scalar loop | QuantFlow Finance BlackScholes(...).greeks() | 57,468 | 56,993 - 58,254 |  |
 | Price, scalar loop | vollib black_scholes_merton | 460,384 | 448,209 - 463,280 | pure Python |
 | Price + 5 Greeks, scalar loop | vollib analytical greeks | 83,218 | 82,183 - 88,233 | pure Python, six calls per option |
 | Price, scalar loop | QuantLib AnalyticEuropeanEngine | 272,509 | 248,268 - 288,080 | C++ via SWIG; objects built once, quote bumped |
@@ -101,7 +101,7 @@ Implied volatility: 2,000 solves per repetition from exact model prices (options
 
 | Solver | Solves per second (median) | IQR | Note |
 |---|---|---|---|
-| quantflow implied_volatility | 36,366 | 35,916 - 36,391 | Brent's method, Python, tol 1e-10 |
+| QuantFlow Finance implied_volatility | 36,366 | 35,916 - 36,391 | Brent's method, Python, tol 1e-10 |
 | vollib implied_volatility | 56,190 | 55,205 - 56,821 | Let's Be Rational, pure Python |
 | QuantLib impliedVolatility | 71,124 | 68,791 - 72,099 | C++ via SWIG, accuracy 1e-12 |
 
@@ -132,18 +132,18 @@ S=100, K=105, T=1 year, r=4%, sigma=25%, no dividends. Reference: QuantLib FdBla
 
 | Method | Steps | Price | Difference from reference | Time (ms) |
 |---|---|---|---|---|
-| quantflow BinomialTree (CRR) | 100 | 11.009607 | -0.010623 | 1.00 |
+| QuantFlow Finance BinomialTree (CRR) | 100 | 11.009607 | -0.010623 | 1.00 |
 | QuantLib BinomialVanillaEngine crr | 100 | 11.009788 | -0.010442 | 0.09 |
-| quantflow BinomialTree (CRR) | 500 | 11.022244 | +0.002014 | 7.73 |
+| QuantFlow Finance BinomialTree (CRR) | 500 | 11.022244 | +0.002014 | 7.73 |
 | QuantLib BinomialVanillaEngine crr | 500 | 11.022280 | +0.002050 | 1.09 |
-| quantflow BinomialTree (CRR) | 2000 | 11.021378 | +0.001148 | 63.04 |
+| QuantFlow Finance BinomialTree (CRR) | 2000 | 11.021378 | +0.001148 | 63.04 |
 | QuantLib BinomialVanillaEngine crr | 2000 | 11.021387 | +0.001157 | 14.91 |
 
 ## Reading the results
 
 - The vectorised functions run at a few million options per second, slower
   than the plain NumPy baseline. The cost breakdown table shows why: input
-  validation is part of the gap, and the rest is that quantflow evaluates
+  validation is part of the gap, and the rest is that QuantFlow Finance evaluates
   the put formula directly (two more normal CDF evaluations) instead of
   deriving puts from parity, which keeps far out-of-the-money put prices
   accurate.
@@ -152,9 +152,9 @@ S=100, K=105, T=1 year, r=4%, sigma=25%, no dividends. Reference: QuantLib FdBla
   objects. Most of the time goes into building the object and validating
   its inputs (see the cost breakdown). For many options use the vectorised
   functions.
-- quantflow's implied volatility solver is slower than vollib and QuantLib
+- QuantFlow Finance's implied volatility solver is slower than vollib and QuantLib
   and slightly less accurate than both, though all three are within
   $4 \times 10^{-11}$ of the true volatility on the test grid.
-- quantflow's CRR tree gives nearly the same prices as QuantLib's CRR engine
+- QuantFlow Finance's CRR tree gives nearly the same prices as QuantLib's CRR engine
   (the probability parameterisation differs slightly) and takes longer per
   option; the ratio shrinks as the number of steps grows (see the table).

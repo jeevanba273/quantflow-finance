@@ -1,5 +1,5 @@
 """
-Accuracy and speed of quantflow against named baselines.
+Accuracy and speed of QuantFlow Finance against named baselines.
 
 Run from the repository root:
 
@@ -126,7 +126,7 @@ def environment():
         ("RAM", f"{_ram_gb():.1f} GB"),
         ("OS", platform.platform()),
         ("Python", sys.version.split()[0]),
-        ("quantflow", qf.__version__),
+        ("quantflow-finance", qf.__version__),
         ("numpy", np.__version__),
         ("scipy", _version("scipy")),
         ("QuantLib", _version("QuantLib")),
@@ -285,7 +285,7 @@ def accuracy(quick):
         print(f"| {label} | {errs.max():.1e} | {np.median(errs):.1e} | {fails} |")
 
     report(
-        "quantflow (Brent, tol 1e-10)",
+        "QuantFlow Finance (Brent, tol 1e-10)",
         lambda p, s, k, t, r, q, v, kind: BlackScholes(
             s, k, t, r, 0.3, kind, q
         ).implied_volatility(p),
@@ -354,7 +354,7 @@ def timings(quick):
 
     row(
         "Price, vectorised",
-        "quantflow black_scholes_price",
+        "QuantFlow Finance black_scholes_price",
         n_vec,
         lambda: black_scholes_price(S, K, T, r, v, kind, q),
         "includes input validation",
@@ -368,13 +368,13 @@ def timings(quick):
     )
     row(
         "Price + 5 Greeks, vectorised",
-        "quantflow black_scholes_greeks",
+        "QuantFlow Finance black_scholes_greeks",
         n_vec,
         lambda: black_scholes_greeks(S, K, T, r, v, kind, q),
     )
     row(
         "Price, scalar loop",
-        "quantflow BlackScholes(...).price()",
+        "QuantFlow Finance BlackScholes(...).price()",
         n_scalar,
         lambda: [
             BlackScholes(s, k, t, rr, vv, kk, qq).price()
@@ -384,7 +384,7 @@ def timings(quick):
     )
     row(
         "Price + 5 Greeks, scalar loop",
-        "quantflow BlackScholes(...).greeks()",
+        "QuantFlow Finance BlackScholes(...).greeks()",
         n_scalar,
         lambda: [
             BlackScholes(s, k, t, rr, vv, kk, qq).greeks()
@@ -464,7 +464,7 @@ def timings(quick):
         )
     print()
 
-    # Where the time goes in quantflow's own paths.
+    # Where the time goes in QuantFlow Finance's own code paths.
     from quantflow.options.analytic import _prepare, _price_core
 
     prepared = _prepare(S, K, T, r, v, q, kind)
@@ -513,7 +513,7 @@ def timings(quick):
         print(f"| {impl} | {rate} | {spread} | {note} |")
 
     iv_row(
-        "quantflow implied_volatility",
+        "QuantFlow Finance implied_volatility",
         lambda: [
             BlackScholes(s, k, t, rr, 0.3, kk, qq).implied_volatility(p)
             for s, k, t, rr, qq, vv, kk, p in iv_cases
@@ -623,7 +623,7 @@ def american(quick):
         tree = BinomialTree(S, K, T, r, sigma, "put", "american", steps, q)
         st = timed(tree.price, repeat)
         print(
-            f"| quantflow BinomialTree (CRR) | {steps} | {tree.price():.6f} | "
+            f"| QuantFlow Finance BinomialTree (CRR) | {steps} | {tree.price():.6f} | "
             f"{tree.price() - reference:+.6f} | {st[0] * 1e3:.2f} |"
         )
         opt.setPricingEngine(ql.BinomialVanillaEngine(proc, "crr", steps))
@@ -640,7 +640,7 @@ def main():
     parser.add_argument("--quick", action="store_true", help="smaller run")
     args = parser.parse_args()
     warnings.simplefilter("ignore")
-    print(f"# quantflow benchmarks{' (quick)' if args.quick else ''}\n")
+    print(f"# QuantFlow Finance benchmarks{' (quick)' if args.quick else ''}\n")
     print(
         f"Command: `python benchmarks/run_benchmarks.py{' --quick' if args.quick else ''}`\n"
     )

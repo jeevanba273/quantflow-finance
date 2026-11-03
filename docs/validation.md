@@ -1,6 +1,6 @@
 # Validation
 
-This page compares quantflow with values that do not come from its own code:
+This page compares QuantFlow Finance with values that do not come from its own code:
 published worked examples, exact identities, closed-form solutions, known
 distributions and two other libraries. The same comparisons are assertions in
 the test suite (`tests/test_reference_*.py`); the tables below are printed by
@@ -34,33 +34,33 @@ for steps, published in [(5, 4.49), (30, 4.263), (50, 4.272), (100, 4.278), (500
     tree = BinomialTree(50, 50, 5 / 12, 0.10, 0.40, "put", "american", steps=steps)
     rows.append((f"Hull American put, {steps} steps", tree.price(), published, 3 if steps > 5 else 2))
 
-print(f"{'case':<30} {'published':>10} {'quantflow':>12}  match")
+print(f"{'case':<30} {'published':>10} {'QuantFlow Finance':>18}  match")
 for label, value, published, digits in rows:
     match = round(value, digits) == published
-    print(f"{label:<30} {published:>10} {value:>12.6f}  {match}")
+    print(f"{label:<30} {published:>10} {value:>18.6f}  {match}")
 ```
 
 ```text
-case                            published    quantflow  match
-Hull BSM call                        4.76     4.759422  True
-Hull BSM put                         0.81     0.808599  True
-Haug BS call                       2.1334     2.133368  True
-Haug Merton put                    2.4648     2.464788  True
-Haug Black-76 call                 1.7011     1.701051  True
-Haug Garman-Kohlhagen              0.0291     0.029099  True
-Haug call delta                    0.5946     0.594629  True
-Haug put delta                    -0.3566    -0.356601  True
-Haug gamma                         0.0278     0.027821  True
-Haug put theta                   -31.1924   -31.192367  True
-Haug call rho x100                38.7325    38.732505  True
-Hull American put, 5 steps           4.49     4.488459  True
-Hull American put, 30 steps         4.263     4.263427  True
-Hull American put, 50 steps         4.272     4.272021  True
-Hull American put, 100 steps        4.278     4.278059  True
-Hull American put, 500 steps        4.283     4.283021  True
+case                            published  QuantFlow Finance  match
+Hull BSM call                        4.76           4.759422  True
+Hull BSM put                         0.81           0.808599  True
+Haug BS call                       2.1334           2.133368  True
+Haug Merton put                    2.4648           2.464788  True
+Haug Black-76 call                 1.7011           1.701051  True
+Haug Garman-Kohlhagen              0.0291           0.029099  True
+Haug call delta                    0.5946           0.594629  True
+Haug put delta                    -0.3566          -0.356601  True
+Haug gamma                         0.0278           0.027821  True
+Haug put theta                   -31.1924         -31.192367  True
+Haug call rho x100                38.7325          38.732505  True
+Hull American put, 5 steps           4.49           4.488459  True
+Hull American put, 30 steps         4.263           4.263427  True
+Hull American put, 50 steps         4.272           4.272021  True
+Hull American put, 100 steps        4.278           4.278059  True
+Hull American put, 500 steps        4.283           4.283021  True
 ```
 
-"match" means quantflow's value rounded to the published number of decimals
+"match" means QuantFlow Finance's value rounded to the published number of decimals
 equals the published value.
 
 ## Identities and derivatives
@@ -152,7 +152,7 @@ value for any solver):
 
 | Solver | Max abs vol error | Median abs vol error | Failures |
 |---|---|---|---|
-| quantflow (Brent, tol 1e-10) | 3.4e-11 | 7.2e-14 | 0 |
+| QuantFlow Finance (Brent, tol 1e-10) | 3.4e-11 | 7.2e-14 | 0 |
 | vollib (Let's Be Rational) | 1.7e-11 | 3.3e-16 | 0 |
 | QuantLib impliedVolatility (accuracy 1e-12) | 1.9e-11 | 1.6e-15 | 0 |
 
