@@ -86,7 +86,9 @@ def test_cornish_fisher_var(sample_returns):
 
 def test_nan_values_dropped():
     series = pd.Series([0.01, np.nan, -0.02, 0.0, np.nan, 0.015])
-    assert np.isfinite(RiskMetrics(series).volatility())
+    with pytest.warns(UserWarning, match="observations"):
+        rm = RiskMetrics(series)
+    assert np.isfinite(rm.volatility())
 
 
 def test_summary_stats_keys(sample_returns):
@@ -155,3 +157,8 @@ def test_short_series_warns_instead_of_printing(capsys):
     with pytest.warns(UserWarning, match="observations"):
         RiskMetrics(pd.Series([0.01, -0.02, 0.005]))
     assert capsys.readouterr().out == ""
+
+
+def test_infinite_returns_rejected():
+    with pytest.raises(ValueError, match="infinite"):
+        RiskMetrics(pd.Series([0.01, np.inf] + [0.0] * 40))

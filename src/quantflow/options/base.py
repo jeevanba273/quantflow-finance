@@ -1,14 +1,10 @@
 """
-Shared base class and helpers for option pricing models.
+Shared base class and helpers for the option pricers.
 
-This internal module centralizes the parameter validation common to every
-pricer (analytic, lattice, Monte-Carlo) along with the terminal payoff
-functions, so the individual pricers stay small and consistent.
-
-``OptionPricer`` is an abstract base class; it is not part of the public API and
-``BlackScholes`` deliberately keeps its own standalone implementation for
-backward compatibility. New pricers such as :class:`~quantflow.options.binomial.BinomialTree`
-subclass ``OptionPricer``.
+Internal module: it holds the parameter validation and payoff functions used
+by :class:`~quantflow.BlackScholes`, :class:`~quantflow.BinomialTree` and
+:class:`~quantflow.MonteCarlo`. ``OptionPricer`` is not part of the public
+API.
 """
 
 import warnings
@@ -21,7 +17,18 @@ def _validate_params(S, K, T, r, sigma, q, option_type):
     """Validate the core option parameters shared by every pricer."""
     if not isinstance(option_type, str):
         raise ValueError("option_type must be 'call' or 'put'")
-    for name, value in (("S", S), ("K", K), ("T", T), ("sigma", sigma), ("r", r)):
+    for name, value in (
+        ("S", S), ("K", K), ("T", T), ("r", r), ("sigma", sigma), ("q", q)
+    ):  # fmt: skip
+        if np.ndim(value) != 0:
+            raise ValueError(
+                f"{name} must be a scalar; use black_scholes_price or "
+                "black_scholes_greeks for arrays"
+            )
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"{name} must be a number") from None
         if not np.isfinite(value):
             raise ValueError(f"{name} must be a finite number")
     if S <= 0:
@@ -32,8 +39,6 @@ def _validate_params(S, K, T, r, sigma, q, option_type):
         raise ValueError("Time to expiration (T) must be positive")
     if sigma <= 0:
         raise ValueError("Volatility (sigma) must be positive")
-    if not np.isfinite(q):
-        raise ValueError("Dividend yield (q) must be a finite number")
     if option_type.lower() not in ("call", "put"):
         raise ValueError("option_type must be 'call' or 'put'")
 

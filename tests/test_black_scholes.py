@@ -175,3 +175,18 @@ def test_iv_rejects_price_at_upper_bound():
     opt = BlackScholes(100, 90, 1, 0.05, 0.2, "put")
     with pytest.raises(ValueError, match="upper bound"):
         opt.implied_volatility(90 * math.exp(-0.05))
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        (dict(S=[100, 101]), "scalar"),
+        (dict(K="abc"), "number"),
+        (dict(q=float("nan")), "finite"),
+    ],
+)
+def test_clear_messages_for_bad_input_types(kwargs, match):
+    args = dict(S=100, K=100, T=1, r=0.05, sigma=0.2)
+    args.update(kwargs)
+    with pytest.raises(ValueError, match=match):
+        BlackScholes(**args)

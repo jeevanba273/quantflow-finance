@@ -101,3 +101,9 @@ def test_one_step_tree_has_no_lattice_gamma_or_theta():
         tree.gamma()
     with pytest.raises(ValueError, match="steps >= 2"):
         tree.theta()
+
+
+@pytest.mark.parametrize("kwargs", [dict(exercise=None), dict(steps=True)])
+def test_bad_exercise_or_steps_type_raises_value_error(kwargs):
+    with pytest.raises(ValueError):
+        BinomialTree(100, 100, 1, 0.05, 0.2, **kwargs)

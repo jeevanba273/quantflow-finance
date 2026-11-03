@@ -1,10 +1,9 @@
 """
-Cox-Ross-Rubinstein (CRR) binomial tree option pricing model.
+Cox-Ross-Rubinstein (CRR) binomial tree for European and American options.
 
-Supports both European and American exercise, a continuous dividend yield, and
-a full Greeks suite. European prices converge to the Black-Scholes-Merton value
-as ``steps`` increases; American options are priced with an early-exercise check
-at every node.
+European prices converge to the Black-Scholes-Merton value as ``steps``
+grows, with an error of order 1/steps that oscillates in sign. American
+options are priced by checking early exercise at every node.
 """
 
 import warnings
@@ -16,44 +15,60 @@ from .base import OptionPricer
 
 
 class BinomialTree(OptionPricer):
-    """
-    CRR binomial tree pricer for European and American options.
+    r"""
+    Cox-Ross-Rubinstein binomial tree pricer.
 
     Parameters
     ----------
     S : float
-        Current stock price.
+        Spot price, > 0.
     K : float
-        Strike price.
+        Strike, > 0.
     T : float
-        Time to expiration in years.
+        Time to expiry as a year fraction, > 0.
     r : float
-        Risk-free interest rate (annualized).
+        Continuously compounded risk-free rate per year.
     sigma : float
-        Volatility of the underlying (annualized).
+        Annualised volatility, > 0.
     option_type : {'call', 'put'}, default 'call'
         Option type.
     exercise : {'european', 'american'}, default 'european'
-        Exercise style. American options allow early exercise.
+        Exercise style. American options may be exercised at any node.
     steps : int, default 500
-        Number of time steps in the lattice. More steps increase accuracy and cost.
+        Number of time steps. Cost grows as ``steps**2`` for American
+        options and the lattice Greeks need ``steps >= 2``.
     q : float, default 0.0
-        Continuous dividend yield (annualized).
-
-    Examples
-    --------
-    >>> # American put has an early-exercise premium over the European put
-    >>> amer = BinomialTree(100, 100, 1, 0.05, 0.2, 'put', 'american', steps=500)
-    >>> euro = BinomialTree(100, 100, 1, 0.05, 0.2, 'put', 'european', steps=500)
-    >>> amer.price() >= euro.price()
-    True
+        Continuous dividend yield per year. Discrete dividends are not
+        modelled.
 
     Notes
     -----
-    With ``dt = T / steps``, the up/down factors are ``u = exp(sigma*sqrt(dt))``
-    and ``d = 1/u``, and the risk-neutral up-probability is
-    ``p = (exp((r - q) * dt) - d) / (u - d)``. Backward induction discounts by
-    ``exp(-r * dt)`` each step; American nodes take ``max(continuation, intrinsic)``.
+    With :math:`\Delta t = T / N`, :math:`u = e^{\sigma\sqrt{\Delta t}}`,
+    :math:`d = 1/u` and
+    :math:`p = (e^{(r-q)\Delta t} - d) / (u - d)`, values are rolled back with
+    :math:`V = e^{-r\Delta t}[p V_u + (1-p) V_d]`; American nodes take
+    :math:`\max(V, \text{intrinsic})`. A warning is raised if :math:`p`
+    falls outside [0, 1] (too few steps for the rate and volatility).
+
+    Greeks follow the :class:`~quantflow.BlackScholes` units. Delta, gamma
+    and theta are read from the first two layers of the tree (Hull's
+    formulas); vega and rho are central differences of repriced trees with
+    bumps of 1e-4.
+
+    Examples
+    --------
+    >>> from quantflow import BinomialTree
+    >>> put = BinomialTree(50, 50, 5 / 12, 0.10, 0.40, "put", "american", steps=5)
+    >>> print(f"{put.price():.2f}")
+    4.49
+
+    References
+    ----------
+    Cox, J. C., Ross, S. A. and Rubinstein, M. (1979). Option Pricing: A
+    Simplified Approach. Journal of Financial Economics, 7(3), 229-263.
+
+    Hull, J. C. Options, Futures, and Other Derivatives (10th ed.), chapter
+    on basic numerical procedures. Pearson.
     """
 
     def __init__(
@@ -69,9 +84,14 @@ class BinomialTree(OptionPricer):
         q: float = 0.0,
     ):
         super().__init__(S, K, T, r, sigma, q=q, option_type=option_type)
-        if not isinstance(steps, (int, np.integer)) or steps < 1:
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)):
             raise ValueError("steps must be a positive integer")
-        if exercise.lower() not in ("european", "american"):
+        if steps < 1:
+            raise ValueError("steps must be a positive integer")
+        if not isinstance(exercise, str) or exercise.lower() not in (
+            "european",
+            "american",
+        ):
             raise ValueError("exercise must be 'european' or 'american'")
         self.steps = int(steps)
         self.exercise = exercise.lower()
@@ -148,7 +168,7 @@ class BinomialTree(OptionPricer):
         return float((delta_up - delta_dn) / (0.5 * (s_uu - s_dd)))
 
     def theta(self) -> float:
-        """Theta (per year) from the lattice: (V_ud - V0) / (2·dt)."""
+        """Theta per year from the lattice: (V_ud - V_0) / (2 dt)."""
         price, n = self._lattice()
         if "step2" not in n:
             raise ValueError("Lattice theta needs steps >= 2")

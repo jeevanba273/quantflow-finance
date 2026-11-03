@@ -1,48 +1,77 @@
 """
-Multi-asset portfolio analytics and mean-variance optimization.
+Mean-variance analysis of a portfolio of several assets.
 
-Provides covariance/correlation analysis, portfolio return/volatility/Sharpe
-given weights, and mean-variance optimization (minimum-variance, maximum-Sharpe,
-and the efficient frontier) using ``scipy.optimize`` only. Bridges to
-:class:`~quantflow.risk.metrics.RiskMetrics` so every risk metric is available
-for an optimized portfolio.
+Expected returns and the covariance matrix are the sample mean and sample
+covariance (``ddof=1``) of the historical returns, annualised with
+``m = periods_per_year`` (mean times ``m``, covariance times ``m``). Weights
+always sum to 1. Long-only problems are solved numerically with SLSQP; with
+short sales allowed the tangency portfolio uses its closed form.
 """
 
 import warnings
 
 import numpy as np
 import pandas as pd
+from numpy.typing import ArrayLike
 from scipy.optimize import OptimizeResult, minimize
 
 from .metrics import RiskMetrics
 
 
 class Portfolio:
-    """
-    Multi-asset portfolio analytics and optimization.
+    r"""
+    Portfolio statistics and mean-variance optimisation.
 
     Parameters
     ----------
-    returns : pandas.DataFrame or numpy.ndarray
-        Asset returns with shape (observations, assets). At least 2 assets.
-    weights : array-like, optional
-        Portfolio weights (must sum to 1). Defaults to equal weighting.
+    returns : pandas.DataFrame or array_like
+        Periodic simple returns, shape (observations, assets), at least two
+        assets. Rows containing a NaN are dropped.
+    weights : array_like, optional
+        Default weights for the analytics methods; must sum to 1. Equal
+        weights if omitted.
     periods_per_year : int, default 252
-        Periods per year for annualization (252 daily, 12 monthly, ...).
+        Periods per year used for annualisation.
+
+    Notes
+    -----
+    For weights :math:`w`, annualised mean vector :math:`\mu` and covariance
+    :math:`\Sigma`, the portfolio return is :math:`w^\top \mu`, the
+    volatility :math:`\sqrt{w^\top \Sigma w}` and the Sharpe ratio
+    :math:`(w^\top \mu - r_f) / \sqrt{w^\top \Sigma w}`.
+
+    Sample means are noisy estimates of expected returns, and optimised
+    weights are very sensitive to them (Michaud, 1989). Treat the output as
+    a function of the inputs, not as a forecast.
 
     Examples
     --------
+    >>> import numpy as np
     >>> import pandas as pd
-    >>> from quantflow import MarketData, Portfolio
-    >>> prices = MarketData.fetch_stock_data(['AAPL', 'MSFT', 'GOOGL'], period='1y')
-    >>> rets = MarketData.calculate_returns(prices)
-    >>> port = Portfolio(rets)
-    >>> result = port.max_sharpe()
-    >>> result['weights_by_asset']  # doctest: +SKIP
-    {'AAPL': 0.41, 'MSFT': 0.39, 'GOOGL': 0.20}
+    >>> from quantflow import Portfolio
+    >>> rng = np.random.default_rng(0)
+    >>> rets = pd.DataFrame(rng.normal(0.0004, 0.01, (500, 3)), columns=list("ABC"))
+    >>> w = Portfolio(rets).min_variance()["weights"]
+    >>> print(np.round(w, 3), round(w.sum(), 12))
+    [0.337 0.346 0.318] 1.0
+
+    References
+    ----------
+    Markowitz, H. (1952). Portfolio Selection. Journal of Finance, 7(1), 77-91.
+
+    Merton, R. C. (1972). An Analytic Derivation of the Efficient Portfolio
+    Frontier. Journal of Financial and Quantitative Analysis, 7(4), 1851-1872.
+
+    Michaud, R. O. (1989). The Markowitz Optimization Enigma: Is 'Optimized'
+    Optimal? Financial Analysts Journal, 45(1), 31-42.
     """
 
-    def __init__(self, returns, weights=None, periods_per_year: int = 252):
+    def __init__(
+        self,
+        returns: ArrayLike,
+        weights: ArrayLike | None = None,
+        periods_per_year: int = 252,
+    ):
         if isinstance(returns, pd.DataFrame):
             self.returns = returns.dropna()
         else:
@@ -90,6 +119,8 @@ class Portfolio:
         w = np.asarray(weights, dtype=float).flatten()
         if len(w) != self.n_assets:
             raise ValueError(f"weights must have length {self.n_assets}")
+        if not np.all(np.isfinite(w)):
+            raise ValueError("weights must be finite")
         if not np.isclose(w.sum(), 1.0, atol=1e-6):
             raise ValueError("weights must sum to 1")
         return w
@@ -109,7 +140,7 @@ class Portfolio:
         var = float(w @ self._cov @ w)
         var = max(var, 0.0)
         vol = np.sqrt(var)
-        return vol * np.sqrt(self.periods_per_year) if annualized else vol
+        return float(vol * np.sqrt(self.periods_per_year) if annualized else vol)
 
     def _sharpe(self, w, risk_free_rate):
         vol = self._vol(w)
@@ -118,7 +149,7 @@ class Portfolio:
         return (self._ret(w) - risk_free_rate) / vol
 
     def _variance_obj(self, w):
-        """Scaled portfolio variance, kept O(1) for robust SLSQP minimization."""
+        """Scaled portfolio variance, kept O(1) for SLSQP."""
         return self._var_scale * float(w @ self._cov @ w)
 
     def _bounds(self, allow_short):
@@ -159,53 +190,95 @@ class Portfolio:
         }
 
     # ------------------------------------------------------------- analytics
-    def covariance_matrix(self, annualized=True) -> pd.DataFrame:
-        """Return the (optionally annualized) covariance matrix."""
+    def covariance_matrix(self, annualized: bool = True) -> pd.DataFrame:
+        """Sample covariance matrix (``ddof=1``), times ``m`` if annualised."""
         factor = self.periods_per_year if annualized else 1
         return self.returns.cov() * factor
 
     def correlation_matrix(self) -> pd.DataFrame:
-        """Return the asset correlation matrix."""
+        """Sample correlation matrix."""
         return self.returns.corr()
 
-    def portfolio_return(self, weights=None, annualized=True) -> float:
-        """Portfolio expected return for the given weights."""
+    def portfolio_return(
+        self, weights: ArrayLike | None = None, annualized: bool = True
+    ) -> float:
+        """Expected return ``w' mu`` (annualised by default)."""
         return self._ret(self._resolve(weights), annualized)
 
-    def portfolio_volatility(self, weights=None, annualized=True) -> float:
-        """Portfolio volatility for the given weights."""
+    def portfolio_volatility(
+        self, weights: ArrayLike | None = None, annualized: bool = True
+    ) -> float:
+        """Volatility ``sqrt(w' Sigma w)`` (annualised by default)."""
         return self._vol(self._resolve(weights), annualized)
 
-    def portfolio_sharpe(self, weights=None, risk_free_rate=0.02) -> float:
-        """Annualized Sharpe ratio for the given weights."""
+    def portfolio_sharpe(
+        self, weights: ArrayLike | None = None, risk_free_rate: float = 0.02
+    ) -> float:
+        """Annualised Sharpe ratio ``(w' mu - rf) / sqrt(w' Sigma w)``."""
         return self._sharpe(self._resolve(weights), risk_free_rate)
 
-    def portfolio_returns_series(self, weights=None) -> pd.Series:
-        """Weighted portfolio return series (one value per observation)."""
+    def portfolio_returns_series(self, weights: ArrayLike | None = None) -> pd.Series:
+        """Per-period portfolio returns with constant weights (rebalanced
+        every period)."""
         w = self._resolve(weights)
         return pd.Series(self.returns.to_numpy() @ w, index=self.returns.index)
 
-    def risk_metrics(self, weights=None) -> RiskMetrics:
-        """
-        Return a :class:`RiskMetrics` object for the weighted portfolio series.
-
-        Lets every RiskMetrics measure (Sortino, Calmar, VaR, drawdown, ...) be
-        computed on an optimized portfolio for free.
-        """
+    def risk_metrics(self, weights: ArrayLike | None = None) -> RiskMetrics:
+        """:class:`RiskMetrics` of :meth:`portfolio_returns_series`."""
         return RiskMetrics(
             self.portfolio_returns_series(weights),
             periods_per_year=self.periods_per_year,
         )
 
     # ----------------------------------------------------------- optimization
-    def min_variance(self, allow_short=False) -> dict:
-        """Minimum-variance portfolio (weights sum to 1)."""
+    def min_variance(self, allow_short: bool = False) -> dict:
+        r"""
+        Minimum-variance portfolio.
+
+        With ``allow_short=True`` this is the global minimum-variance
+        portfolio :math:`\Sigma^{-1}\mathbf 1 / (\mathbf 1^\top \Sigma^{-1}
+        \mathbf 1)`; otherwise weights are also bounded to [0, 1].
+
+        Returns
+        -------
+        dict
+            ``weights`` (ndarray), ``weights_by_asset``, annualised
+            ``return`` and ``volatility``, ``sharpe`` (at rf = 2%) and
+            ``success``.
+        """
         constraints = [{"type": "eq", "fun": lambda w: w.sum() - 1.0}]
         res = self._solve(self._variance_obj, constraints, allow_short)
         return self._result(res)
 
-    def max_sharpe(self, risk_free_rate=0.02, allow_short=False) -> dict:
-        """Maximum-Sharpe (tangency) portfolio (weights sum to 1)."""
+    def max_sharpe(
+        self, risk_free_rate: float = 0.02, allow_short: bool = False
+    ) -> dict:
+        r"""
+        Maximum-Sharpe (tangency) portfolio.
+
+        With ``allow_short=True`` the weights are the closed form
+        :math:`\Sigma^{-1}(\mu - r_f \mathbf 1)` normalised to sum to 1. Long
+        only, the ratio is maximised numerically (SLSQP from equal weights).
+
+        Parameters
+        ----------
+        risk_free_rate : float, default 0.02
+            Annual risk-free rate.
+        allow_short : bool, default False
+            Allow negative weights.
+
+        Returns
+        -------
+        dict
+            Same keys as :meth:`min_variance`.
+
+        Raises
+        ------
+        ValueError
+            With ``allow_short=True``, if the minimum-variance portfolio's
+            return is below ``risk_free_rate``: no fully invested portfolio
+            then attains the supremum of the Sharpe ratio.
+        """
         if allow_short:
             return self._tangency(risk_free_rate)
         constraints = [{"type": "eq", "fun": lambda w: w.sum() - 1.0}]
@@ -231,13 +304,34 @@ class Portfolio:
         res = OptimizeResult(x=x / x.sum(), success=True, message="closed form")
         return self._result(res, risk_free_rate)
 
-    def efficient_frontier(self, n_points=50, allow_short=False) -> pd.DataFrame:
+    def efficient_frontier(
+        self,
+        n_points: int = 50,
+        allow_short: bool = False,
+        risk_free_rate: float = 0.02,
+    ) -> pd.DataFrame:
         """
-        Trace the efficient frontier.
+        Minimum-variance portfolios for a grid of target returns.
 
-        Returns a DataFrame with columns ``return``, ``volatility``, ``sharpe``,
-        and one weight column per asset (``w_<asset>``), sweeping target returns
-        from the minimum-variance return to the best single-asset return.
+        Targets run in equal steps from the minimum-variance portfolio's
+        return to the highest single-asset mean return. Targets the solver
+        cannot reach are left out, so the frame can have fewer than
+        ``n_points`` rows.
+
+        Parameters
+        ----------
+        n_points : int, default 50
+            Number of target returns.
+        allow_short : bool, default False
+            Allow negative weights.
+        risk_free_rate : float, default 0.02
+            Annual rate used for the ``sharpe`` column.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Columns ``return``, ``volatility``, ``sharpe`` (annualised) and
+            ``w_<asset>`` for each asset.
         """
         if n_points < 2:
             raise ValueError("n_points must be at least 2")
@@ -259,7 +353,7 @@ class Portfolio:
             row = {
                 "return": self._ret(w),
                 "volatility": self._vol(w),
-                "sharpe": self._sharpe(w, 0.02),
+                "sharpe": self._sharpe(w, risk_free_rate),
             }
             row.update(
                 {f"w_{a}": float(wi) for a, wi in zip(self.assets, w, strict=True)}
@@ -270,19 +364,30 @@ class Portfolio:
 
     def optimize(
         self,
-        objective="max_sharpe",
-        target_return=None,
-        risk_free_rate=0.02,
-        allow_short=False,
+        objective: str = "max_sharpe",
+        target_return: float | None = None,
+        risk_free_rate: float = 0.02,
+        allow_short: bool = False,
     ) -> dict:
         """
-        Dispatch to an optimization objective.
+        Run one of the optimisers by name.
 
         Parameters
         ----------
         objective : {'max_sharpe', 'min_variance', 'target_return'}
+            ``'target_return'`` minimises variance subject to an annualised
+            expected return of ``target_return``.
         target_return : float, optional
-            Required when ``objective='target_return'`` (annualized).
+            Required for ``objective='target_return'``.
+        risk_free_rate : float, default 0.02
+            Annual rate for the Sharpe ratio.
+        allow_short : bool, default False
+            Allow negative weights.
+
+        Returns
+        -------
+        dict
+            Same keys as :meth:`min_variance`.
         """
         if objective == "min_variance":
             return self.min_variance(allow_short)
