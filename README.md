@@ -154,15 +154,16 @@ repetitions; the
 [benchmarks page](https://quantflow-finance.readthedocs.io/en/latest/benchmarks.html)
 has the spread, the method and more rows.
 
-| Task | quantflow | Baseline |
+| Task | QuantFlow Finance | Baseline |
 |---|---|---|
 | Price 1,000,000 options, vectorised | 5,691,834 options/s | plain NumPy/SciPy, no input checks: 9,059,514 options/s |
 | Price one option at a time (Python loop) | 90,568 options/s | vollib (pure Python): 460,384; QuantLib (C++, objects reused): 272,509 |
 | Implied volatility, one at a time | 36,366 solves/s | vollib (Let's Be Rational): 56,190; QuantLib: 71,124 |
 
-quantflow is slower than QuantLib and vollib for one option at a time and
-for implied volatility, and slower than a bare NumPy implementation because
-it validates inputs and evaluates puts directly rather than through parity.
+QuantFlow Finance is slower than QuantLib and vollib for one option at a
+time and for implied volatility, and slower than a bare NumPy implementation
+because it validates inputs and evaluates puts directly rather than through
+parity.
 
 ## Limitations
 
