@@ -1,18 +1,38 @@
-# quantflow
+<div align="center">
 
-[![CI](https://github.com/jeevanba273/quantflow-finance/actions/workflows/ci.yml/badge.svg)](https://github.com/jeevanba273/quantflow-finance/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/quantflow-finance)](https://pypi.org/project/quantflow-finance/)
-[![Python](https://img.shields.io/pypi/pyversions/quantflow-finance)](https://pypi.org/project/quantflow-finance/)
-[![License: MIT](https://img.shields.io/pypi/l/quantflow-finance)](https://github.com/jeevanba273/quantflow-finance/blob/main/LICENSE)
+# QUANTFLOW FINANCE
 
-quantflow is a small Python library for option pricing (Black-Scholes-Merton
-in closed form and on NumPy arrays, Cox-Ross-Rubinstein trees for American
-options, Monte Carlo with standard errors), risk statistics of return series
-(VaR, expected shortfall, drawdown, Sharpe and related ratios) and
-mean-variance portfolio optimisation. It is written for students,
-researchers and anyone prototyping who wants short, documented formulas whose
-results have been checked against textbooks, QuantLib and vollib. It depends
-only on NumPy, SciPy and pandas.
+<em>Option pricing, risk metrics and portfolio optimisation in Python.</em>
+
+<!-- BADGES -->
+<img src="https://img.shields.io/github/license/jeevanba273/quantflow-finance?style=flat&logo=opensourceinitiative&logoColor=white&color=0080ff&cache=bust&v=1" alt="license">
+<img src="https://img.shields.io/github/last-commit/jeevanba273/quantflow-finance?style=flat&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+<img src="https://img.shields.io/github/languages/top/jeevanba273/quantflow-finance?style=flat&color=0080ff" alt="repo-top-language">
+<img src="https://img.shields.io/github/languages/count/jeevanba273/quantflow-finance?style=flat&color=0080ff" alt="repo-language-count">
+<a href="https://pypi.org/project/quantflow-finance/"><img src="https://img.shields.io/pypi/v/quantflow-finance?style=flat&logo=pypi&logoColor=white&color=0080ff&cache=bust" alt="pypi-version"></a>
+<img src="https://static.pepy.tech/badge/quantflow-finance" alt="total-downloads">
+<a href="https://github.com/jeevanba273/quantflow-finance/actions/workflows/ci.yml"><img src="https://github.com/jeevanba273/quantflow-finance/actions/workflows/ci.yml/badge.svg" alt="ci-status"></a>
+<a href="https://quantflow-finance.readthedocs.io"><img src="https://readthedocs.org/projects/quantflow-finance/badge/?version=latest" alt="docs-status"></a>
+
+<em>Built with the tools and technologies:</em>
+
+<img src="https://img.shields.io/badge/Python-3776AB.svg?style=flat&logo=Python&logoColor=white" alt="Python">
+<img src="https://img.shields.io/badge/NumPy-013243.svg?style=flat&logo=NumPy&logoColor=white" alt="NumPy">
+<img src="https://img.shields.io/badge/SciPy-8CAAE6.svg?style=flat&logo=SciPy&logoColor=white" alt="SciPy">
+<img src="https://img.shields.io/badge/Pandas-150458.svg?style=flat&logo=pandas&logoColor=white" alt="Pandas">
+
+</div>
+<br>
+
+QuantFlow Finance (`pip install quantflow-finance`, imported as `quantflow`)
+is a small Python library for option pricing (Black-Scholes-Merton in closed
+form and on NumPy arrays, Cox-Ross-Rubinstein trees for American options,
+Monte Carlo with standard errors), risk statistics of return series (VaR,
+expected shortfall, drawdown, Sharpe and related ratios) and mean-variance
+portfolio optimisation. It is written for students, researchers and anyone
+prototyping who wants short, documented formulas whose results have been
+checked against textbooks, QuantLib and vollib. It depends only on NumPy,
+SciPy and pandas.
 
 ## Install
 
