@@ -1,5 +1,8 @@
 """Tests for the MarketData fetcher (offline via mocked yfinance)."""
 
+import subprocess
+import sys
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -52,8 +55,20 @@ def test_fetch_empty_raises(mock_yfinance_empty):
         MarketData.fetch_stock_data("FAKE", period="1mo", max_tries=1)
 
 
+def test_core_import_does_not_load_yfinance():
+    code = "import sys, quantflow; assert 'yfinance' not in sys.modules"
+    subprocess.run([sys.executable, "-c", code], check=True)
+
+
+def test_fetch_without_yfinance_gives_install_hint(monkeypatch):
+    monkeypatch.setitem(sys.modules, "yfinance", None)
+    with pytest.raises(ImportError, match=r"quantflow-finance\[data\]"):
+        MarketData.fetch_stock_data("AAPL")
+
+
 @pytest.mark.network
 def test_live_smoke():
     """Optional live smoke test; deselected in CI with -m 'not network'."""
+    pytest.importorskip("yfinance")
     data = MarketData.fetch_stock_data("AAPL", period="5d")
     assert not data.empty

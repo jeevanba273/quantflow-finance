@@ -2,6 +2,9 @@
 Market data fetching and preprocessing utilities.
 
 This module provides tools for downloading stock data and calculating returns.
+Downloading needs the optional ``yfinance`` dependency
+(``pip install "quantflow-finance[data]"``); it is imported only when a fetch
+method is called, so the rest of the package never depends on it.
 """
 
 import random
@@ -9,7 +12,18 @@ import time
 
 import numpy as np
 import pandas as pd
-import yfinance as yf
+
+
+def _yfinance():
+    """Import and return the optional yfinance module, with an install hint."""
+    try:
+        import yfinance
+    except ImportError as exc:
+        raise ImportError(
+            "Fetching market data needs the optional 'yfinance' package. "
+            'Install it with: pip install "quantflow-finance[data]"'
+        ) from exc
+    return yfinance
 
 
 class MarketData:
@@ -41,6 +55,7 @@ class MarketData:
         Raises:
         Exception: If all retry attempts fail
         """
+        yf = _yfinance()
         if isinstance(tickers, str):
             tickers = [tickers]
 
@@ -141,6 +156,7 @@ class MarketData:
         Returns:
         pandas DataFrame with all stocks' adjusted close prices
         """
+        yf = _yfinance()
         all_data = {}
 
         for i, ticker in enumerate(tickers):

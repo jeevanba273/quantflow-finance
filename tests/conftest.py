@@ -5,6 +5,8 @@ Includes deterministic data fixtures and an offline mock of yfinance so the
 market-data tests never touch the network.
 """
 
+from types import SimpleNamespace
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -76,7 +78,7 @@ def _fake_history(n=180, start=150.0, seed=1):
 
 @pytest.fixture
 def mock_yfinance(monkeypatch):
-    """Patch the yfinance alias used inside the fetcher with offline stand-ins."""
+    """Replace the lazily imported yfinance module with offline stand-ins."""
     import quantflow.data.fetcher as fetcher
 
     class _Ticker:
@@ -96,8 +98,8 @@ def mock_yfinance(monkeypatch):
         adj.columns = pd.MultiIndex.from_product([["Adj Close"], list(tickers)])
         return adj
 
-    monkeypatch.setattr(fetcher.yf, "Ticker", _Ticker)
-    monkeypatch.setattr(fetcher.yf, "download", _download)
+    fake = SimpleNamespace(Ticker=_Ticker, download=_download)
+    monkeypatch.setattr(fetcher, "_yfinance", lambda: fake)
 
 
 @pytest.fixture
@@ -112,4 +114,5 @@ def mock_yfinance_empty(monkeypatch):
         def history(self, period="1y", interval="1d"):
             return pd.DataFrame()
 
-    monkeypatch.setattr(fetcher.yf, "Ticker", _EmptyTicker)
+    fake = SimpleNamespace(Ticker=_EmptyTicker, download=None)
+    monkeypatch.setattr(fetcher, "_yfinance", lambda: fake)
