@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+type: software
+title: "quantflow-finance"
+abstract: >-
+  Python library for Black-Scholes-Merton, binomial-tree and Monte Carlo
+  option pricing, return-based risk metrics and mean-variance portfolio
+  optimisation.
+authors:
+  - given-names: Jeevan
+    family-names: B A
+version: 0.3.0
+date-released: "2026-11-03"
+license: MIT
+repository-code: "https://github.com/jeevanba273/quantflow-finance"
+url: "https://quantflow-finance.readthedocs.io"
+keywords:
+  - quantitative finance
+  - option pricing
+  - Black-Scholes
+  - binomial tree
+  - Monte Carlo
+  - value at risk
+  - portfolio optimisation
