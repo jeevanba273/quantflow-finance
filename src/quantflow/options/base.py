@@ -78,20 +78,20 @@ class OptionPricer(ABC):
         if self.T > 5:
             warnings.warn(
                 "Time to expiration > 5 years may produce unrealistic results",
-                stacklevel=2,
+                stacklevel=3,
             )
         if self.sigma > 2:
             warnings.warn(
-                "Volatility > 200% may produce unrealistic results", stacklevel=2
+                "Volatility > 200% may produce unrealistic results", stacklevel=3
             )
         if self.q > 1:
             warnings.warn(
                 "Dividend yield (q) > 100% may produce unrealistic results",
-                stacklevel=2,
+                stacklevel=3,
             )
         elif self.q < 0:
             warnings.warn(
-                "Negative dividend yield (q) is unusual but allowed", stacklevel=2
+                "Negative dividend yield (q) is unusual but allowed", stacklevel=3
             )
 
     @abstractmethod
