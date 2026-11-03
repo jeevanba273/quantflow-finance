@@ -25,7 +25,11 @@ class RiskMetrics:
 
     def __init__(self, returns, periods_per_year: int = 252):
         if isinstance(returns, pd.DataFrame):
-            # If DataFrame, take the first column or flatten
+            if returns.shape[1] != 1:
+                raise ValueError(
+                    "returns must have exactly one column; select one series or "
+                    "use Portfolio for several assets"
+                )
             self.returns = returns.iloc[:, 0].dropna()
         elif isinstance(returns, pd.Series):
             self.returns = returns.dropna()

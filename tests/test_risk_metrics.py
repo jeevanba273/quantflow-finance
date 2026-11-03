@@ -141,3 +141,11 @@ def test_multi_column_benchmark_rejected(sample_returns):
     frame = pd.DataFrame({"a": sample_returns, "b": sample_returns})
     with pytest.raises(ValueError, match="one column"):
         RiskMetrics(sample_returns).beta(frame)
+
+
+def test_multi_column_returns_rejected():
+    # Silently analysing only the first column of a multi-asset frame gives
+    # numbers for the wrong series; ask the caller to choose.
+    frame = pd.DataFrame({"a": [0.01, -0.02, 0.005] * 20, "b": [0.03, -0.01, 0.0] * 20})
+    with pytest.raises(ValueError, match="one column"):
+        RiskMetrics(frame)
