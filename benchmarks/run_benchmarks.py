@@ -464,6 +464,33 @@ def timings(quick):
         )
     print()
 
+    # Where the time goes in quantflow's own paths.
+    from quantflow.options.analytic import _prepare, _price_core
+
+    prepared = _prepare(S, K, T, r, v, q, kind)
+    one = BlackScholes(100.0, 105.0, 0.5, 0.03, 0.25, "call", 0.01)
+    m = 2_000 if quick else 20_000
+    breakdown = [
+        (f"validate and broadcast {n_vec:,} inputs", n_vec, 1e3, "ms",
+         lambda: _prepare(S, K, T, r, v, q, kind)),
+        (f"price {n_vec:,} validated inputs", n_vec, 1e3, "ms",
+         lambda: _price_core(*prepared)),
+        (f"plain NumPy price of {n_vec:,} inputs", n_vec, 1e3, "ms",
+         lambda: bs_numpy(S, K, T, r, v, q, is_call)),
+        ("construct one BlackScholes", 1, 1e6, "us",
+         lambda: [BlackScholes(100.0, 105.0, 0.5, 0.03, 0.25, "call", 0.01)
+                  for _ in range(m)]),
+        ("price() on a built BlackScholes", 1, 1e6, "us",
+         lambda: [one.price() for _ in range(m)]),
+    ]  # fmt: skip
+    print("Cost breakdown (median per call):\n")
+    print("| Step | Time |")
+    print("|---|---|")
+    for label, count, scale, unit, fn in breakdown:
+        per = timed(fn, repeat)[0] / (1 if count > 1 else m)
+        print(f"| {label} | {per * scale:.1f} {unit} |")
+    print()
+
     # Implied volatility timing (scalar only in every library).
     n_iv = 300 if quick else 2_000
     iv_cases = []
