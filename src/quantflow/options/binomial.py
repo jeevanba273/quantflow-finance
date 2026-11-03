@@ -148,16 +148,12 @@ class BinomialTree(OptionPricer):
         """Return the option price from the CRR lattice."""
         return self._lattice()[0]
 
-    def delta(self) -> float:
-        """Delta read from the first lattice layer (finite difference)."""
-        price, n = self._lattice()
+    def _delta_from(self, n):
         v_u, v_d = n["step1"]
         s_u, s_d = self.S * n["u"], self.S * n["d"]
         return float((v_u - v_d) / (s_u - s_d))
 
-    def gamma(self) -> float:
-        """Gamma read from the second lattice layer (finite difference)."""
-        price, n = self._lattice()
+    def _gamma_from(self, n):
         if "step2" not in n:
             raise ValueError("Lattice gamma needs steps >= 2")
         v_uu, v_ud, v_dd = n["step2"]
@@ -167,13 +163,22 @@ class BinomialTree(OptionPricer):
         delta_dn = (v_ud - v_dd) / (s_ud - s_dd)
         return float((delta_up - delta_dn) / (0.5 * (s_uu - s_dd)))
 
-    def theta(self) -> float:
-        """Theta per year from the lattice: (V_ud - V_0) / (2 dt)."""
-        price, n = self._lattice()
+    def _theta_from(self, n):
         if "step2" not in n:
             raise ValueError("Lattice theta needs steps >= 2")
-        v_ud = n["step2"][1]
-        return float((v_ud - price) / (2.0 * n["dt"]))
+        return float((n["step2"][1] - n["price"]) / (2.0 * n["dt"]))
+
+    def delta(self) -> float:
+        """Delta from the first lattice layer: (V_u - V_d) / (S u - S d)."""
+        return self._delta_from(self._lattice()[1])
+
+    def gamma(self) -> float:
+        """Gamma from the second lattice layer (difference of layer deltas)."""
+        return self._gamma_from(self._lattice()[1])
+
+    def theta(self) -> float:
+        """Theta per year from the lattice: (V_ud - V_0) / (2 dt)."""
+        return self._theta_from(self._lattice()[1])
 
     def vega(self, d_sigma: float = 1e-4) -> float:
         """Vega via central-difference bump-and-reprice, scaled per 1% vol."""
@@ -188,12 +193,18 @@ class BinomialTree(OptionPricer):
         return (up - dn) / (2.0 * d_r) / 100.0
 
     def greeks(self) -> dict[str, float]:
-        """Return price and all Greeks in a single dict."""
+        """
+        Price and all Greeks in one dict.
+
+        Price, delta, gamma and theta come from one backward induction; vega
+        and rho each need two bumped trees, so five trees are built in all.
+        """
+        price, n = self._lattice()
         return {
-            "price": self.price(),
-            "delta": self.delta(),
-            "gamma": self.gamma(),
-            "theta": self.theta(),
+            "price": price,
+            "delta": self._delta_from(n),
+            "gamma": self._gamma_from(n),
+            "theta": self._theta_from(n),
             "vega": self.vega(),
             "rho": self.rho(),
         }
