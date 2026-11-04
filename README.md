@@ -13,6 +13,7 @@
 <img src="https://static.pepy.tech/badge/quantflow-finance" alt="total-downloads">
 <a href="https://github.com/jeevanba273/quantflow-finance/actions/workflows/ci.yml"><img src="https://github.com/jeevanba273/quantflow-finance/actions/workflows/ci.yml/badge.svg" alt="ci-status"></a>
 <a href="https://quantflow-finance.readthedocs.io"><img src="https://readthedocs.org/projects/quantflow-finance/badge/?version=latest" alt="docs-status"></a>
+<a href="https://doi.org/10.5281/zenodo.23931527"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.23931527.svg" alt="DOI"></a>
 
 <em>Built with the tools and technologies:</em>
 
@@ -206,7 +207,9 @@ validation and benchmarks.
 
 ## Citing and licence
 
-Citation metadata are in
+To cite QuantFlow Finance, use the Zenodo DOI
+[10.5281/zenodo.23931527](https://doi.org/10.5281/zenodo.23931527), which
+always points to the latest version; citation metadata are in
 [CITATION.cff](https://github.com/jeevanba273/quantflow-finance/blob/main/CITATION.cff).
 MIT licence; see
 [LICENSE](https://github.com/jeevanba273/quantflow-finance/blob/main/LICENSE).

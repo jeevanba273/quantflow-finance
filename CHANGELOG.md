@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Zenodo DOI 10.5281/zenodo.23931527 (all versions) in `CITATION.cff` and a
+  DOI badge and citation line in the README.
+
+### Changed
+- The `CITATION.cff` title is now "QuantFlow Finance".
+
 ## [0.3.1] - 2026-11-04
 
 Documentation-only release. The library code is unchanged from 0.3.0.
