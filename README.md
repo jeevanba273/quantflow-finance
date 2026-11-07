@@ -35,10 +35,10 @@ prototyping who wants short, documented formulas whose results have been
 checked against textbooks, QuantLib and vollib. It depends only on NumPy,
 SciPy and pandas.
 
-Since 0.3.2 the import name is `quantflow_finance`. The old name `quantflow`
-still works in 0.3.x with a warning and is removed in 0.4.0, because the
-unrelated PyPI project [quantflow](https://github.com/quantmind/quantflow)
-installs a module with the same name. To migrate, replace `quantflow` with
+The import name is `quantflow_finance`. Version 0.4.0 removed the old name
+`quantflow`, because the unrelated PyPI project
+[quantflow](https://github.com/quantmind/quantflow) installs a module with the
+same name. To upgrade code written for 0.3.x, replace `quantflow` with
 `quantflow_finance` in your import lines.
 
 ## Install

@@ -18,11 +18,13 @@ pip install "quantflow-finance[validation]"  # QuantLib and vollib, for the cros
 
 ### Import name
 
-Up to 0.3.1 the import name was `quantflow`. It still works in the 0.3.x
-series, with a `FutureWarning`, and is removed in 0.4.0, because the PyPI
-project [quantflow](https://github.com/quantmind/quantflow), which is not
-related to QuantFlow Finance, installs a top-level module with the same name.
-To migrate, replace `quantflow` with `quantflow_finance` in your import lines:
+Up to 0.3.1 the import name was `quantflow`. Version 0.3.2 added
+`quantflow_finance` and kept `quantflow` with a `FutureWarning`; 0.4.0
+removed `quantflow`, because the PyPI project
+[quantflow](https://github.com/quantmind/quantflow), which is not related to
+QuantFlow Finance, installs a top-level module with the same name. To upgrade
+code written for 0.3.x, replace `quantflow` with `quantflow_finance` in your
+import lines:
 
 | Before | After |
 |---|---|
@@ -30,7 +32,7 @@ To migrate, replace `quantflow` with `quantflow_finance` in your import lines:
 | `from quantflow.risk.metrics import RiskMetrics` | `from quantflow_finance.risk.metrics import RiskMetrics` |
 | `import quantflow` | `import quantflow_finance`, and `quantflow.X` becomes `quantflow_finance.X` |
 
-To keep the old name for now, pin `quantflow-finance<0.4`.
+Code that must keep the old name can pin `quantflow-finance<0.4`.
 
 ## A first example
 

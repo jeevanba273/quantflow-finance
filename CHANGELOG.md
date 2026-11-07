@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-08
+
+The library code is otherwise unchanged from 0.3.2.
+
+### Removed
+- **Breaking change:** the old import name `quantflow`, deprecated in 0.3.2.
+  Import `quantflow_finance` instead; the package name `quantflow-finance` is
+  unchanged. QuantFlow Finance no longer installs a module called
+  `quantflow`, so it can be installed next to the unrelated PyPI project
+  quantflow (quantmind/quantflow). To upgrade code written for 0.3.x, replace
+  `quantflow` with `quantflow_finance` in import lines:
+  `from quantflow import X` becomes `from quantflow_finance import X`,
+  `from quantflow.options... import X` becomes
+  `from quantflow_finance.options... import X`, and `import quantflow`
+  becomes `import quantflow_finance` (with `quantflow.X` becoming
+  `quantflow_finance.X`). Code that must keep the old name can pin
+  `quantflow-finance<0.4`.
+
 ## [0.3.2] - 2026-11-08
 
 ### Changed
@@ -219,7 +237,8 @@ All changes are additive and backward-compatible. Existing `BlackScholes`,
 - Initial release: Black-Scholes pricing with Greeks, core risk metrics, and
   Yahoo Finance market data integration.
 
-[Unreleased]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/jeevanba273/quantflow-finance/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/jeevanba273/quantflow-finance/compare/v0.2.1...v0.3.0
