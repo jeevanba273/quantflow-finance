@@ -3,7 +3,7 @@
 Run with:  python examples/monte_carlo.py
 """
 
-from quantflow import BlackScholes, MonteCarlo
+from quantflow_finance import BlackScholes, MonteCarlo
 
 args = dict(S=100, K=100, T=1.0, r=0.05, sigma=0.2, option_type="call")
 exact = BlackScholes(**args).price()

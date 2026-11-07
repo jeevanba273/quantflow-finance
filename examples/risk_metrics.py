@@ -6,7 +6,7 @@ Run with:  python examples/risk_metrics.py
 import numpy as np
 import pandas as pd
 
-from quantflow import RiskMetrics
+from quantflow_finance import RiskMetrics
 
 rng = np.random.default_rng(2024)
 dates = pd.bdate_range("2020-01-01", periods=1250)

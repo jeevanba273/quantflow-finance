@@ -7,7 +7,7 @@ import math
 
 import numpy as np
 
-from quantflow import BlackScholes, black_scholes_greeks, black_scholes_price
+from quantflow_finance import BlackScholes, black_scholes_greeks, black_scholes_price
 
 # Hull's textbook example: S=42, K=40, r=10%, sigma=20%, six months.
 call = BlackScholes(S=42, K=40, T=0.5, r=0.10, sigma=0.20, option_type="call")

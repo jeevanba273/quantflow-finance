@@ -1,6 +1,6 @@
 # Risk metrics
 
-{class}`~quantflow.RiskMetrics` computes risk and performance statistics of
+{class}`~quantflow_finance.RiskMetrics` computes risk and performance statistics of
 one series of periodic simple returns. The examples on this page use five
 years of simulated daily returns with Student-t(5) shocks, so the results can
 be compared with known values.
@@ -9,7 +9,7 @@ be compared with known values.
 import numpy as np
 import pandas as pd
 
-from quantflow import RiskMetrics
+from quantflow_finance import RiskMetrics
 
 rng = np.random.default_rng(2024)
 dates = pd.bdate_range("2020-01-01", periods=1250)

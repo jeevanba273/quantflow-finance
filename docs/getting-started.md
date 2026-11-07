@@ -3,7 +3,7 @@
 ## Install
 
 QuantFlow Finance needs Python 3.10 or newer. The distribution is called
-`quantflow-finance`; the import name is `quantflow`.
+`quantflow-finance`; the import name is `quantflow_finance`.
 
 ```bash
 pip install quantflow-finance
@@ -16,6 +16,22 @@ pip install "quantflow-finance[data]"        # yfinance, for MarketData.fetch_*
 pip install "quantflow-finance[validation]"  # QuantLib and vollib, for the cross-checks
 ```
 
+### Import name
+
+Up to 0.3.1 the import name was `quantflow`. It still works in the 0.3.x
+series, with a `FutureWarning`, and is removed in 0.4.0, because the PyPI
+project [quantflow](https://github.com/quantmind/quantflow), which is not
+related to QuantFlow Finance, installs a top-level module with the same name.
+To migrate, replace `quantflow` with `quantflow_finance` in your import lines:
+
+| Before | After |
+|---|---|
+| `from quantflow import BlackScholes` | `from quantflow_finance import BlackScholes` |
+| `from quantflow.risk.metrics import RiskMetrics` | `from quantflow_finance.risk.metrics import RiskMetrics` |
+| `import quantflow` | `import quantflow_finance`, and `quantflow.X` becomes `quantflow_finance.X` |
+
+To keep the old name for now, pin `quantflow-finance<0.4`.
+
 ## A first example
 
 Price the call and put from Hull's textbook example (spot 42, strike 40,
@@ -25,7 +41,7 @@ volatility from the call price:
 ```python
 import math
 
-from quantflow import BlackScholes
+from quantflow_finance import BlackScholes
 
 call = BlackScholes(S=42, K=40, T=0.5, r=0.10, sigma=0.20, option_type="call")
 put = BlackScholes(S=42, K=40, T=0.5, r=0.10, sigma=0.20, option_type="put")
@@ -49,13 +65,13 @@ Hull quotes 4.76 and 0.81 for these two options.
 
 | Object | What it does |
 | --- | --- |
-| {class}`~quantflow.BlackScholes` | Closed-form Black-Scholes-Merton price, Greeks and implied volatility for one European option |
-| {func}`~quantflow.black_scholes_price`, {func}`~quantflow.black_scholes_greeks` | The same formulas on NumPy arrays |
-| {class}`~quantflow.BinomialTree` | Cox-Ross-Rubinstein tree for European and American options |
-| {class}`~quantflow.MonteCarlo` | Monte Carlo price of a European option with its standard error |
-| {class}`~quantflow.RiskMetrics` | VaR, expected shortfall, drawdown and performance ratios of one return series |
-| {class}`~quantflow.Portfolio` | Covariance, minimum-variance, maximum-Sharpe and target-return portfolios |
-| {class}`~quantflow.MarketData` | Prices from Yahoo Finance (optional extra) and price-to-return conversion |
+| {class}`~quantflow_finance.BlackScholes` | Closed-form Black-Scholes-Merton price, Greeks and implied volatility for one European option |
+| {func}`~quantflow_finance.black_scholes_price`, {func}`~quantflow_finance.black_scholes_greeks` | The same formulas on NumPy arrays |
+| {class}`~quantflow_finance.BinomialTree` | Cox-Ross-Rubinstein tree for European and American options |
+| {class}`~quantflow_finance.MonteCarlo` | Monte Carlo price of a European option with its standard error |
+| {class}`~quantflow_finance.RiskMetrics` | VaR, expected shortfall, drawdown and performance ratios of one return series |
+| {class}`~quantflow_finance.Portfolio` | Covariance, minimum-variance, maximum-Sharpe and target-return portfolios |
+| {class}`~quantflow_finance.MarketData` | Prices from Yahoo Finance (optional extra) and price-to-return conversion |
 
 ## Conventions
 

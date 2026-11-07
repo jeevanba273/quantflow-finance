@@ -14,14 +14,14 @@ import pytest
 
 @pytest.fixture
 def atm_call():
-    from quantflow import BlackScholes
+    from quantflow_finance import BlackScholes
 
     return BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type="call")
 
 
 @pytest.fixture
 def atm_put():
-    from quantflow import BlackScholes
+    from quantflow_finance import BlackScholes
 
     return BlackScholes(S=100, K=100, T=1, r=0.05, sigma=0.2, option_type="put")
 
@@ -79,7 +79,7 @@ def _fake_history(n=180, start=150.0, seed=1):
 @pytest.fixture
 def mock_yfinance(monkeypatch):
     """Replace the lazily imported yfinance module with offline stand-ins."""
-    import quantflow.data.fetcher as fetcher
+    import quantflow_finance.data.fetcher as fetcher
 
     class _Ticker:
         def __init__(self, symbol):
@@ -105,7 +105,7 @@ def mock_yfinance(monkeypatch):
 @pytest.fixture
 def mock_yfinance_empty(monkeypatch):
     """Patch yfinance so every fetch returns empty data."""
-    import quantflow.data.fetcher as fetcher
+    import quantflow_finance.data.fetcher as fetcher
 
     class _EmptyTicker:
         def __init__(self, symbol):

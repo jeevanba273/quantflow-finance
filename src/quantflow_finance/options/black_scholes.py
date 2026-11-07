@@ -2,10 +2,10 @@
 Black-Scholes-Merton pricing of a single European option.
 
 :class:`BlackScholes` wraps the closed-form formulas in
-:mod:`quantflow.options.analytic` for one option and adds an implied
+:mod:`quantflow_finance.options.analytic` for one option and adds an implied
 volatility solver. For many options at once, call
-:func:`~quantflow.black_scholes_price` or
-:func:`~quantflow.black_scholes_greeks` on arrays instead.
+:func:`~quantflow_finance.black_scholes_price` or
+:func:`~quantflow_finance.black_scholes_greeks` on arrays instead.
 """
 
 from typing import Literal
@@ -67,7 +67,7 @@ class BlackScholes(OptionPricer):
 
     Examples
     --------
-    >>> from quantflow import BlackScholes
+    >>> from quantflow_finance import BlackScholes
     >>> option = BlackScholes(S=42, K=40, T=0.5, r=0.10, sigma=0.20)
     >>> print(f"{option.price():.4f}")
     4.7594

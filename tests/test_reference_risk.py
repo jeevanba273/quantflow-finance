@@ -20,7 +20,7 @@ import pandas as pd
 import pytest
 from scipy import stats
 
-from quantflow import RiskMetrics
+from quantflow_finance import RiskMetrics
 
 N = 400_000
 

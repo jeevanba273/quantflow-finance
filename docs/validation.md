@@ -15,7 +15,7 @@ Pricing Formulas* (2nd ed.), chapters 1 and 2; Haug's cost of carry $b$ is
 $r - q$ here.
 
 ```python
-from quantflow import BinomialTree, BlackScholes
+from quantflow_finance import BinomialTree, BlackScholes
 
 rows = [
     ("Hull BSM call", BlackScholes(42, 40, 0.5, 0.10, 0.20).price(), 4.76, 2),
@@ -76,7 +76,7 @@ import math
 
 import numpy as np
 
-from quantflow import black_scholes_greeks, black_scholes_price
+from quantflow_finance import black_scholes_greeks, black_scholes_price
 
 
 def bound(x):
@@ -178,7 +178,7 @@ standard error must halve when the paths quadruple, and every variance
 reduction method must lower the standard error at a fixed number of paths.
 
 ```python
-from quantflow import BlackScholes, MonteCarlo
+from quantflow_finance import BlackScholes, MonteCarlo
 
 contracts = [(100, 100, 1.0, 0.05, 0.2, "call", 0.0), (100, 120, 0.5, 0.03, 0.3, "call", 0.02),
              (100, 90, 0.25, 0.05, 0.25, "put", 0.0), (100, 110, 2.0, 0.02, 0.4, "put", 0.01)]
@@ -209,7 +209,7 @@ with SciPy). The tests allow five asymptotic standard errors.
 import numpy as np
 from scipy import stats
 
-from quantflow import RiskMetrics
+from quantflow_finance import RiskMetrics
 
 n = 400_000
 samples = {
@@ -255,7 +255,7 @@ long-only portfolios. Simulated returns of four assets:
 import numpy as np
 import pandas as pd
 
-from quantflow import Portfolio
+from quantflow_finance import Portfolio
 
 rng = np.random.default_rng(0)
 vols = np.linspace(0.008, 0.02, 4)

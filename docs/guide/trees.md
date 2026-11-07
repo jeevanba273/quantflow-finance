@@ -1,6 +1,6 @@
 # Binomial trees
 
-{class}`~quantflow.BinomialTree` builds a Cox-Ross-Rubinstein (CRR) tree.
+{class}`~quantflow_finance.BinomialTree` builds a Cox-Ross-Rubinstein (CRR) tree.
 It prices European and American calls and puts with a continuous dividend
 yield.
 
@@ -11,7 +11,7 @@ rate and 40% volatility. Hull reports 4.49 for a 5-step tree and 4.263,
 4.272, 4.278 and 4.283 for 30, 50, 100 and 500 steps.
 
 ```python
-from quantflow import BinomialTree, BlackScholes
+from quantflow_finance import BinomialTree, BlackScholes
 
 for steps in (5, 30, 50, 100, 500):
     tree = BinomialTree(50, 50, 5 / 12, 0.10, 0.40, "put", "american", steps=steps)
@@ -33,7 +33,7 @@ The difference between the American and European prices is the
 early-exercise premium:
 
 ```python
-from quantflow import BinomialTree
+from quantflow_finance import BinomialTree
 
 put = BinomialTree(50, 50, 5 / 12, 0.10, 0.40, "put", "american", steps=500)
 print(f"{put.early_exercise_premium():.4f}")
@@ -48,7 +48,7 @@ An American call on a stock without dividends is never exercised early
 yield the premium can be positive:
 
 ```python
-from quantflow import BinomialTree
+from quantflow_finance import BinomialTree
 
 for q in (0.0, 0.08):
     call = BinomialTree(100, 100, 1.0, 0.05, 0.2, "call", "american", steps=500, q=q)
@@ -69,7 +69,7 @@ Averaging the prices from two neighbouring step counts is a common way to
 damp the oscillation; the library does not do it for you.
 
 ```python
-from quantflow import BinomialTree, BlackScholes
+from quantflow_finance import BinomialTree, BlackScholes
 
 exact = BlackScholes(100, 105, 0.5, 0.05, 0.25, "call").price()
 for steps in (50, 100, 200, 400, 800, 1600):

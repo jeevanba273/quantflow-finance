@@ -43,7 +43,7 @@ class RiskMetrics:
     Examples
     --------
     >>> import numpy as np
-    >>> from quantflow import RiskMetrics
+    >>> from quantflow_finance import RiskMetrics
     >>> rm = RiskMetrics(np.random.default_rng(0).normal(0.0005, 0.01, 1000))
     >>> print(f"{rm.var_historical(0.05):.4f}")
     -0.0151

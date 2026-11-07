@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from quantflow import RiskMetrics
+from quantflow_finance import RiskMetrics
 
 
 @pytest.mark.parametrize("confidence_level", [0.01, 0.05, 0.10])

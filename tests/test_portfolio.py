@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from quantflow import Portfolio, RiskMetrics
+from quantflow_finance import Portfolio, RiskMetrics
 
 
 def test_construction(sample_multi_returns):

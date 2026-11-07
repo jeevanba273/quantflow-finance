@@ -4,7 +4,7 @@ Vectorised Black-Scholes-Merton formulas for European options.
 The functions here accept scalars or NumPy arrays and broadcast them against
 each other, so a whole option chain can be priced in one call. They are the
 single implementation of the closed-form price and Greeks:
-:class:`~quantflow.BlackScholes` calls the same code for one option.
+:class:`~quantflow_finance.BlackScholes` calls the same code for one option.
 
 Conventions
 -----------
@@ -189,7 +189,7 @@ def black_scholes_price(
     Examples
     --------
     >>> import numpy as np
-    >>> from quantflow import black_scholes_price
+    >>> from quantflow_finance import black_scholes_price
     >>> round(black_scholes_price(42, 40, 0.5, 0.10, 0.20, "call"), 4)
     4.7594
     >>> strikes = np.array([90.0, 100.0, 110.0])

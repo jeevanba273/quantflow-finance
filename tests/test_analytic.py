@@ -5,8 +5,8 @@ import itertools
 import numpy as np
 import pytest
 
-from quantflow import BlackScholes, black_scholes_greeks, black_scholes_price
-from quantflow.options.analytic import _price_scalar
+from quantflow_finance import BlackScholes, black_scholes_greeks, black_scholes_price
+from quantflow_finance.options.analytic import _price_scalar
 
 GRID = list(
     itertools.product(

@@ -50,14 +50,14 @@ class BinomialTree(OptionPricer):
     :math:`\max(V, \text{intrinsic})`. A warning is raised if :math:`p`
     falls outside [0, 1] (too few steps for the rate and volatility).
 
-    Greeks follow the :class:`~quantflow.BlackScholes` units. Delta, gamma
+    Greeks follow the :class:`~quantflow_finance.BlackScholes` units. Delta, gamma
     and theta are read from the first two layers of the tree (Hull's
     formulas); vega and rho are central differences of repriced trees with
     bumps of 1e-4.
 
     Examples
     --------
-    >>> from quantflow import BinomialTree
+    >>> from quantflow_finance import BinomialTree
     >>> put = BinomialTree(50, 50, 5 / 12, 0.10, 0.40, "put", "american", steps=5)
     >>> print(f"{put.price():.2f}")
     4.49

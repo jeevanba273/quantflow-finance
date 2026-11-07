@@ -7,7 +7,7 @@ Run with:  python examples/market_data.py
 The output depends on the day it runs. It is not part of the test suite.
 """
 
-from quantflow import MarketData, Portfolio, RiskMetrics
+from quantflow_finance import MarketData, Portfolio, RiskMetrics
 
 prices = MarketData.fetch_stock_data(["SPY", "TLT", "GLD"], period="5y")
 returns = MarketData.calculate_returns(prices)

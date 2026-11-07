@@ -2,8 +2,8 @@
 Shared base class and helpers for the option pricers.
 
 Internal module: it holds the parameter validation and payoff functions used
-by :class:`~quantflow.BlackScholes`, :class:`~quantflow.BinomialTree` and
-:class:`~quantflow.MonteCarlo`. ``OptionPricer`` is not part of the public
+by :class:`~quantflow_finance.BlackScholes`, :class:`~quantflow_finance.BinomialTree` and
+:class:`~quantflow_finance.MonteCarlo`. ``OptionPricer`` is not part of the public
 API.
 """
 

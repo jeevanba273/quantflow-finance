@@ -19,7 +19,7 @@ import math
 
 import pytest
 
-from quantflow import BlackScholes, black_scholes_price
+from quantflow_finance import BlackScholes, black_scholes_price
 
 
 def test_hull_textbook_example():
@@ -75,7 +75,7 @@ HAUG = [
         "theta",
         -31.1924,
     ),
-    # quantflow's rho is per 1 percentage point; Haug's is per unit of r.
+    # quantflow_finance's rho is per 1 percentage point; Haug's is per unit of r.
     ("call rho (b=r)", dict(S=72, K=75, T=1.0, r=0.09, sigma=0.19), "rho100", 38.7325),
 ]
 

@@ -82,10 +82,10 @@ package-dir = { "" = "src" }
 where = ["src"]
 
 [tool.setuptools.dynamic]
-version = { attr = "quantflow.__version__" }
+version = { attr = "quantflow_finance.__version__" }
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "src/quantflow"]
+testpaths = ["tests", "src/quantflow_finance"]
 pythonpath = ["src"]
 addopts = "-ra --strict-markers --doctest-modules"
 markers = [
@@ -94,7 +94,7 @@ markers = [
 
 [tool.coverage.run]
 branch = true
-source = ["quantflow"]
+source = ["quantflow_finance"]
 
 [tool.ruff]
 line-length = 88

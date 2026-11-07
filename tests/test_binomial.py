@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from quantflow import BinomialTree, BlackScholes
+from quantflow_finance import BinomialTree, BlackScholes
 
 
 @pytest.mark.parametrize("option_type", ["call", "put"])

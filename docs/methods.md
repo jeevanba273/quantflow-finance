@@ -20,8 +20,8 @@ function and $\varphi$ its density.
 
 ## Black-Scholes-Merton
 
-Used by {class}`~quantflow.BlackScholes`, {func}`~quantflow.black_scholes_price`
-and {func}`~quantflow.black_scholes_greeks`.
+Used by {class}`~quantflow_finance.BlackScholes`, {func}`~quantflow_finance.black_scholes_price`
+and {func}`~quantflow_finance.black_scholes_greeks`.
 
 **Model.** Under the risk-neutral measure the underlying follows
 $dS_t = (r - q) S_t\,dt + \sigma S_t\,dW_t$ with constant $r$, $q$, $\sigma$.
@@ -56,7 +56,7 @@ true of the other libraries compared on the {doc}`validation` page as well).
 
 ## Implied volatility
 
-{meth}`~quantflow.BlackScholes.implied_volatility` checks the no-arbitrage
+{meth}`~quantflow_finance.BlackScholes.implied_volatility` checks the no-arbitrage
 bounds and then solves $V(\sigma) = V_{\text{market}}$ with Brent's method
 (Brent 1973) on $[10^{-6}, 10]$, widened up to 1000 if needed, with an
 absolute tolerance of $10^{-10}$ on $\sigma$. The solution is unique because
@@ -70,7 +70,7 @@ its median volatility error is smaller than QuantFlow Finance's (see
 
 ## Cox-Ross-Rubinstein tree
 
-Used by {class}`~quantflow.BinomialTree` (Cox, Ross and Rubinstein 1979).
+Used by {class}`~quantflow_finance.BinomialTree` (Cox, Ross and Rubinstein 1979).
 With $\Delta t = T/N$, $u = e^{\sigma\sqrt{\Delta t}}$, $d = 1/u$ and
 $p = (e^{(r-q)\Delta t} - d)/(u - d)$, node values are rolled back with
 $V = e^{-r\Delta t}\,[p V_u + (1-p) V_d]$. American nodes take
@@ -86,7 +86,7 @@ yield is supported.
 
 ## Monte Carlo
 
-Used by {class}`~quantflow.MonteCarlo`. Terminal prices are sampled exactly,
+Used by {class}`~quantflow_finance.MonteCarlo`. Terminal prices are sampled exactly,
 $S_T = S\exp((r - q - \tfrac12\sigma^2)T + \sigma\sqrt T Z)$, and the price is
 the mean discounted payoff. The standard error is the sample standard
 deviation of the independent estimates over $\sqrt n$; the confidence
@@ -101,7 +101,7 @@ control-variate coefficient introduces a bias of order $1/n$.
 
 ## Risk metrics
 
-Used by {class}`~quantflow.RiskMetrics`, on returns $r_1, \dots, r_n$ with
+Used by {class}`~quantflow_finance.RiskMetrics`, on returns $r_1, \dots, r_n$ with
 sample mean $\hat\mu$ and standard deviation $\hat\sigma$.
 
 | Measure | Definition |
@@ -133,7 +133,7 @@ have large standard errors on a few years of data.
 
 ## Mean-variance optimisation
 
-Used by {class}`~quantflow.Portfolio` (Markowitz 1952). With sample mean
+Used by {class}`~quantflow_finance.Portfolio` (Markowitz 1952). With sample mean
 vector $\mu$ and covariance $\Sigma$ (both annualised) and weights summing to
 one:
 

@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from quantflow import BlackScholes, MonteCarlo
+from quantflow_finance import BlackScholes, MonteCarlo
 
 CASES = [
     # S, K, T, r, sigma, option_type, q

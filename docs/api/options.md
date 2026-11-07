@@ -1,7 +1,7 @@
 # Options
 
 ```{eval-rst}
-.. currentmodule:: quantflow
+.. currentmodule:: quantflow_finance
 
 .. autoclass:: BlackScholes
    :members:

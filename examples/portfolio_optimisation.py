@@ -6,7 +6,7 @@ Run with:  python examples/portfolio_optimisation.py
 import numpy as np
 import pandas as pd
 
-from quantflow import Portfolio
+from quantflow_finance import Portfolio
 
 rng = np.random.default_rng(7)
 vols = np.array([0.012, 0.004, 0.009, 0.014])  # daily

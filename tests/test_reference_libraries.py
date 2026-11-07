@@ -16,7 +16,7 @@ import itertools
 
 import pytest
 
-from quantflow import BinomialTree, BlackScholes
+from quantflow_finance import BinomialTree, BlackScholes
 
 EURO_GRID = list(
     itertools.product(

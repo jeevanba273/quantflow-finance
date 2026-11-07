@@ -1,11 +1,11 @@
 # Implied volatility
 
-{meth}`BlackScholes.implied_volatility() <quantflow.BlackScholes.implied_volatility>`
+{meth}`BlackScholes.implied_volatility() <quantflow_finance.BlackScholes.implied_volatility>`
 finds the volatility at which the Black-Scholes-Merton price equals a given
 price. The `sigma` the object was built with is ignored.
 
 ```python
-from quantflow import BlackScholes
+from quantflow_finance import BlackScholes
 
 option = BlackScholes(S=100, K=110, T=0.5, r=0.03, sigma=0.30, option_type="call", q=0.01)
 iv = option.implied_volatility(4.25)
@@ -41,7 +41,7 @@ model price can equal the discounted intrinsic value to every digit for a
 wide range of volatilities, so no volatility can be recovered.
 
 ```python
-from quantflow import BlackScholes
+from quantflow_finance import BlackScholes
 
 deep_itm = BlackScholes(S=100, K=50, T=1 / 365, r=0.03, sigma=0.20, option_type="call")
 try:

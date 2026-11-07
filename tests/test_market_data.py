@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from quantflow import MarketData
+from quantflow_finance import MarketData
 
 
 def test_fetch_single(mock_yfinance):
@@ -56,7 +56,7 @@ def test_fetch_empty_raises(mock_yfinance_empty):
 
 
 def test_fetch_logs_instead_of_printing(mock_yfinance, capsys, caplog):
-    with caplog.at_level("INFO", logger="quantflow.data.fetcher"):
+    with caplog.at_level("INFO", logger="quantflow_finance.data.fetcher"):
         MarketData.fetch_stock_data("AAPL")
         MarketData.fetch_single_stock_batch(["AAPL", "MSFT"], batch_delay=0)
     assert capsys.readouterr().out == ""
@@ -64,7 +64,7 @@ def test_fetch_logs_instead_of_printing(mock_yfinance, capsys, caplog):
 
 
 def test_core_import_does_not_load_yfinance():
-    code = "import sys, quantflow; assert 'yfinance' not in sys.modules"
+    code = "import sys, quantflow_finance; assert 'yfinance' not in sys.modules"
     subprocess.run([sys.executable, "-c", code], check=True)
 
 

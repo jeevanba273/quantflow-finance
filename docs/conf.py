@@ -1,4 +1,4 @@
-"""Sphinx configuration for the quantflow documentation."""
+"""Sphinx configuration for the QuantFlow Finance documentation."""
 
 import importlib.metadata
 

@@ -1,7 +1,7 @@
 # Risk and portfolio
 
 ```{eval-rst}
-.. currentmodule:: quantflow
+.. currentmodule:: quantflow_finance
 
 .. autoclass:: RiskMetrics
    :members:

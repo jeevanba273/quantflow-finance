@@ -1,6 +1,6 @@
 # Portfolio optimisation
 
-{class}`~quantflow.Portfolio` takes a matrix of periodic returns (one column
+{class}`~quantflow_finance.Portfolio` takes a matrix of periodic returns (one column
 per asset) and computes portfolio statistics and mean-variance optimal
 weights. Expected returns and covariances are the sample mean and sample
 covariance, annualised with `periods_per_year` (252 by default). Weights
@@ -10,7 +10,7 @@ always sum to 1.
 import numpy as np
 import pandas as pd
 
-from quantflow import Portfolio
+from quantflow_finance import Portfolio
 
 rng = np.random.default_rng(7)
 vols = np.array([0.012, 0.004, 0.009, 0.014])
@@ -92,8 +92,8 @@ fewer rows than requested (the last, all-in-one-asset point often is).
 
 ## Risk metrics of a portfolio
 
-{meth}`~quantflow.Portfolio.risk_metrics` returns a
-{class}`~quantflow.RiskMetrics` for the portfolio's return series with
+{meth}`~quantflow_finance.Portfolio.risk_metrics` returns a
+{class}`~quantflow_finance.RiskMetrics` for the portfolio's return series with
 constant weights (rebalanced every period).
 
 ```python

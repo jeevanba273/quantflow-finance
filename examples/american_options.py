@@ -3,7 +3,7 @@
 Run with:  python examples/american_options.py
 """
 
-from quantflow import BinomialTree, BlackScholes
+from quantflow_finance import BinomialTree, BlackScholes
 
 # Hull's American put: S=K=50, r=10%, sigma=40%, five months.
 for steps in (5, 30, 100, 500):

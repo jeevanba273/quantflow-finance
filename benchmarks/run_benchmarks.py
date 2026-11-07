@@ -30,8 +30,8 @@ import warnings
 import numpy as np
 from scipy.special import ndtr
 
-import quantflow as qf
-from quantflow import (
+import quantflow_finance as qf
+from quantflow_finance import (
     BinomialTree,
     BlackScholes,
     MonteCarlo,
@@ -465,7 +465,7 @@ def timings(quick):
     print()
 
     # Where the time goes in QuantFlow Finance's own code paths.
-    from quantflow.options.analytic import _prepare, _price_core
+    from quantflow_finance.options.analytic import _prepare, _price_core
 
     prepared = _prepare(S, K, T, r, v, q, kind)
     one = BlackScholes(100.0, 105.0, 0.5, 0.03, 0.25, "call", 0.01)

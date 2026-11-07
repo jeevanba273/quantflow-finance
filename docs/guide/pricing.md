@@ -1,13 +1,13 @@
 # Black-Scholes-Merton pricing
 
-{class}`~quantflow.BlackScholes` prices one European option;
-{func}`~quantflow.black_scholes_price` prices many at once from NumPy arrays.
+{class}`~quantflow_finance.BlackScholes` prices one European option;
+{func}`~quantflow_finance.black_scholes_price` prices many at once from NumPy arrays.
 Both use the same code.
 
 ## One option
 
 ```python
-from quantflow import BlackScholes
+from quantflow_finance import BlackScholes
 
 option = BlackScholes(S=100, K=105, T=0.25, r=0.05, sigma=0.20, option_type="call")
 print(option)
@@ -35,7 +35,7 @@ The continuous yield `q` covers three common cases (Haug 2007, chapter 1):
   (Black 1976).
 
 ```python
-from quantflow import BlackScholes
+from quantflow_finance import BlackScholes
 
 index_put = BlackScholes(100, 95, 0.5, 0.10, 0.20, "put", q=0.05)
 fx_call = BlackScholes(1.56, 1.60, 0.5, 0.06, 0.12, "call", q=0.08)
@@ -63,7 +63,7 @@ suite checks it to $10^{-10}$ on a grid of 648 parameter sets.
 ```python
 import math
 
-from quantflow import black_scholes_price
+from quantflow_finance import black_scholes_price
 
 S, K, T, r, sigma, q = 100, 110, 2.0, 0.03, 0.35, 0.01
 c = black_scholes_price(S, K, T, r, sigma, "call", q)
@@ -79,14 +79,14 @@ print(f"{S * math.exp(-q * T) - K * math.exp(-r * T):.10f}")
 
 ## Many options at once
 
-{func}`~quantflow.black_scholes_price` broadcasts its arguments with NumPy's
+{func}`~quantflow_finance.black_scholes_price` broadcasts its arguments with NumPy's
 rules, so strikes along one axis and expiries along another give a price
 grid. `option_type` can also be an array.
 
 ```python
 import numpy as np
 
-from quantflow import black_scholes_price
+from quantflow_finance import black_scholes_price
 
 strikes = np.array([90.0, 100.0, 110.0])
 expiries = np.array([[0.25], [1.0]])

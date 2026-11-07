@@ -9,9 +9,9 @@ abstract: >-
 authors:
   - given-names: Jeevan
     family-names: B A
-version: 0.3.1
+version: 0.3.2
 doi: 10.5281/zenodo.23931527
-date-released: "2026-11-04"
+date-released: "2026-11-08"
 license: MIT
 repository-code: "https://github.com/jeevanba273/quantflow-finance"
 url: "https://quantflow-finance.readthedocs.io"

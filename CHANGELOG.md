@@ -7,12 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-08
+
+### Changed
+- The import name is now `quantflow_finance`, for example
+  `from quantflow_finance import BlackScholes`. The package name
+  `quantflow-finance` is unchanged. The reason: the unrelated PyPI project
+  quantflow (quantmind/quantflow) also installs a top-level module called
+  `quantflow`, so installing both packages made one overwrite the other.
+- The documentation, examples, benchmarks and tests use the new name. The
+  market-data logger is now `quantflow_finance.data.fetcher`.
+- The `CITATION.cff` title is now "QuantFlow Finance".
+
+### Deprecated
+- The old import name `quantflow`. In 0.3.x it still works, including
+  submodule imports such as `from quantflow.risk.metrics import RiskMetrics`,
+  and returns the same objects as `quantflow_finance`, but importing it emits
+  a `FutureWarning`. It is removed in 0.4.0. To migrate, replace `quantflow`
+  with `quantflow_finance` in import lines: `from quantflow import X` becomes
+  `from quantflow_finance import X`, `from quantflow.options... import X`
+  becomes `from quantflow_finance.options... import X`, and `import quantflow`
+  becomes `import quantflow_finance` (with `quantflow.X` becoming
+  `quantflow_finance.X`). To keep the old name for now, pin
+  `quantflow-finance<0.4`.
+
 ### Added
 - Zenodo DOI 10.5281/zenodo.23931527 (all versions) in `CITATION.cff` and a
   DOI badge and citation line in the README.
-
-### Changed
-- The `CITATION.cff` title is now "QuantFlow Finance".
 
 ## [0.3.1] - 2026-11-04
 
@@ -198,6 +219,8 @@ All changes are additive and backward-compatible. Existing `BlackScholes`,
 - Initial release: Black-Scholes pricing with Greeks, core risk metrics, and
   Yahoo Finance market data integration.
 
+[Unreleased]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/jeevanba273/quantflow-finance/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/jeevanba273/quantflow-finance/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/jeevanba273/quantflow-finance/compare/v0.2.0...v0.2.1

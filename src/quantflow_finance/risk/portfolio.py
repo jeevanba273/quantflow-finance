@@ -48,7 +48,7 @@ class Portfolio:
     --------
     >>> import numpy as np
     >>> import pandas as pd
-    >>> from quantflow import Portfolio
+    >>> from quantflow_finance import Portfolio
     >>> rng = np.random.default_rng(0)
     >>> rets = pd.DataFrame(rng.normal(0.0004, 0.01, (500, 3)), columns=list("ABC"))
     >>> w = Portfolio(rets).min_variance()["weights"]

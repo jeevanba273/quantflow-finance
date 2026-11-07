@@ -25,7 +25,7 @@
 </div>
 <br>
 
-QuantFlow Finance (`pip install quantflow-finance`, imported as `quantflow`)
+QuantFlow Finance (`pip install quantflow-finance`, imported as `quantflow_finance`)
 is a small Python library for option pricing (Black-Scholes-Merton in closed
 form and on NumPy arrays, Cox-Ross-Rubinstein trees for American options,
 Monte Carlo with standard errors), risk statistics of return series (VaR,
@@ -34,6 +34,12 @@ portfolio optimisation. It is written for students, researchers and anyone
 prototyping who wants short, documented formulas whose results have been
 checked against textbooks, QuantLib and vollib. It depends only on NumPy,
 SciPy and pandas.
+
+Since 0.3.2 the import name is `quantflow_finance`. The old name `quantflow`
+still works in 0.3.x with a warning and is removed in 0.4.0, because the
+unrelated PyPI project [quantflow](https://github.com/quantmind/quantflow)
+installs a module with the same name. To migrate, replace `quantflow` with
+`quantflow_finance` in your import lines.
 
 ## Install
 
@@ -51,7 +57,7 @@ A European call and put (Hull's textbook example), the call's Greeks and its
 implied volatility:
 
 ```python
-from quantflow import BlackScholes
+from quantflow_finance import BlackScholes
 
 call = BlackScholes(S=42, K=40, T=0.5, r=0.10, sigma=0.20, option_type="call")
 put = BlackScholes(S=42, K=40, T=0.5, r=0.10, sigma=0.20, option_type="put")
@@ -72,7 +78,7 @@ An American put on a binomial tree, the same contract as a European option in
 closed form, and a Monte Carlo estimate with its standard error:
 
 ```python
-from quantflow import BinomialTree, BlackScholes, MonteCarlo
+from quantflow_finance import BinomialTree, BlackScholes, MonteCarlo
 
 american = BinomialTree(S=50, K=50, T=5 / 12, r=0.10, sigma=0.40, option_type="put",
                         exercise="american", steps=500)
@@ -107,7 +113,7 @@ Risk statistics of five years of simulated daily returns with fat tails
 import numpy as np
 from scipy import stats
 
-from quantflow import RiskMetrics
+from quantflow_finance import RiskMetrics
 
 returns = 0.0003 + 0.009 * np.random.default_rng(2024).standard_t(5, 1250)
 rm = RiskMetrics(returns)  # annualised with 252 periods per year

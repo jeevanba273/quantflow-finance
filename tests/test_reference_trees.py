@@ -16,7 +16,7 @@ import itertools
 
 import pytest
 
-from quantflow import BinomialTree, BlackScholes
+from quantflow_finance import BinomialTree, BlackScholes
 
 HULL_PUT = dict(S=50, K=50, T=5 / 12, r=0.10, sigma=0.40, option_type="put")
 

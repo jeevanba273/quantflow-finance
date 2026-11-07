@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from quantflow import BlackScholes
+from quantflow_finance import BlackScholes
 
 
 @pytest.mark.parametrize("option_type,lo,hi", [("call", 10.0, 11.0), ("put", 5.0, 6.0)])
@@ -145,7 +145,7 @@ def test_iv_rejects_arbitrage_violation():
 
 def test_text_output_is_ascii():
     # Non-ASCII symbols raised UnicodeEncodeError on Windows cp1252 consoles.
-    from quantflow import BinomialTree
+    from quantflow_finance import BinomialTree
 
     for obj in (
         BlackScholes(100, 100, 1, 0.05, 0.2),

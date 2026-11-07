@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from quantflow import Portfolio
+from quantflow_finance import Portfolio
 
 
 def _returns(seed, n_assets=4, n_obs=1500):

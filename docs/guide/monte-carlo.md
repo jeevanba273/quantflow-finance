@@ -1,6 +1,6 @@
 # Monte Carlo
 
-{class}`~quantflow.MonteCarlo` estimates the price of a European call or put
+{class}`~quantflow_finance.MonteCarlo` estimates the price of a European call or put
 by simulating the terminal price under geometric Brownian motion. It exists
 to show Monte Carlo error and variance reduction on a problem whose answer is
 known: for European options the closed form is exact and much cheaper.
@@ -8,7 +8,7 @@ known: for European options the closed form is exact and much cheaper.
 ## Price and standard error
 
 ```python
-from quantflow import BlackScholes, MonteCarlo
+from quantflow_finance import BlackScholes, MonteCarlo
 
 mc = MonteCarlo(S=100, K=100, T=1.0, r=0.05, sigma=0.2, option_type="call",
                 n_paths=200_000, seed=7)
@@ -39,7 +39,7 @@ numbers each time.
 The standard error falls as $1/\sqrt{n}$: four times the paths halve it.
 
 ```python
-from quantflow import BlackScholes, MonteCarlo
+from quantflow_finance import BlackScholes, MonteCarlo
 
 exact = BlackScholes(100, 100, 1.0, 0.05, 0.2).price()
 print("paths        price  std err  error/std err")
@@ -71,7 +71,7 @@ Two methods are available, alone or together.
 Comparisons below use the same number of simulated terminal prices.
 
 ```python
-from quantflow import MonteCarlo
+from quantflow_finance import MonteCarlo
 
 base = dict(S=100, K=100, T=1.0, r=0.05, sigma=0.2, n_paths=100_000, seed=42)
 plain = MonteCarlo(**base).simulate().std_error
@@ -92,7 +92,7 @@ The gain depends on the contract. These are the four contracts used in
 `tests/test_monte_carlo.py`:
 
 ```python
-from quantflow import MonteCarlo
+from quantflow_finance import MonteCarlo
 
 contracts = [(100, 100, 1.0, 0.05, 0.2, "call", 0.0), (100, 120, 0.5, 0.03, 0.3, "call", 0.02),
              (100, 90, 0.25, 0.05, 0.25, "put", 0.0), (100, 110, 2.0, 0.02, 0.4, "put", 0.01)]

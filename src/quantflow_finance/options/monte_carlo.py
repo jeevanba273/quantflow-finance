@@ -7,7 +7,7 @@ The terminal price is sampled exactly,
 
 so there is no time-discretisation bias; the only error is statistical and is
 reported as a standard error. For European vanilla options the closed form in
-:class:`~quantflow.BlackScholes` is exact and much cheaper. This pricer exists
+:class:`~quantflow_finance.BlackScholes` is exact and much cheaper. This pricer exists
 to show and test Monte Carlo convergence and variance reduction on a problem
 with a known answer.
 """
@@ -56,7 +56,7 @@ class MonteCarlo(OptionPricer):
     Parameters
     ----------
     S, K, T, r, sigma, option_type, q
-        As for :class:`~quantflow.BlackScholes`: spot, strike, year fraction
+        As for :class:`~quantflow_finance.BlackScholes`: spot, strike, year fraction
         to expiry, continuously compounded rate, annualised volatility,
         ``'call'``/``'put'`` and continuous dividend yield.
     n_paths : int, default 100_000
@@ -77,7 +77,7 @@ class MonteCarlo(OptionPricer):
 
     Examples
     --------
-    >>> from quantflow import MonteCarlo
+    >>> from quantflow_finance import MonteCarlo
     >>> mc = MonteCarlo(100, 100, 1.0, 0.05, 0.2, n_paths=200_000, seed=7)
     >>> res = mc.simulate()
     >>> print(f"{res.price:.4f} +/- {res.std_error:.4f}")

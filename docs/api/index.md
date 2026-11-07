@@ -1,7 +1,7 @@
 # API reference
 
 Generated from the docstrings. Everything listed is importable from the
-top-level `quantflow` package.
+top-level `quantflow_finance` package.
 
 ```{toctree}
 :maxdepth: 1
@@ -12,7 +12,7 @@ data
 ```
 
 ```{eval-rst}
-.. currentmodule:: quantflow
+.. currentmodule:: quantflow_finance
 
 .. autosummary::
    :nosignatures:
